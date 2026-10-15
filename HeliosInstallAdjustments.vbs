@@ -26,6 +26,10 @@ else
    Dim heliosF15EPluginUpgrade:heliosF15EPluginUpgrade = "{CCACC9F3-3F71-4CE5-8A7E-3CCF3746FC46}"
    Dim upgradeCode:upgradeCode = heliosUpgrade
    
+   ' upgrade code for Helios Developer Edition, which installs alongside regular Helios
+   ' in Program Files\Helios Development (must match UpgradeCode in the Helios installer projects)
+   Dim heliosDevEditionUpgrade:heliosDevEditionUpgrade = "{61ABF5C4-2190-4DF7-8D49-7203DFD55DE0}"
+
    ' upgrade code for Helios Development Prototypes
    Dim heliosDevUpgrade:heliosDevUpgrade = "{BA7FFC56-BDB7-4B02-8A12-089A630CCF96}"
    Dim heliosDevF15EPluginUpgrade:heliosDevF15EPluginUpgrade = "{FF1DE3B4-D0F2-4BC6-AE4C-DCD07C7FFF24}"
@@ -36,7 +40,10 @@ else
    Dim session : Set session = installer.OpenPackage(database,1) : If Err <> 0 Then Fail "Installer: '" & msiPackage & "' has invalid installer package format"
 
    ' check product (this script is shared)
-   if session.Property("ProductName") = "Helios Keypress Receiver" then
+   if session.Property("ProductName") = "Helios Developer Edition" then
+        Wscript.Echo "configuring Helios Developer Edition"
+        upgradeCode = heliosDevEditionUpgrade
+   elseif session.Property("ProductName") = "Helios Keypress Receiver" then
         Wscript.Echo "configuring Helios Keypress Receiver Installer"
         upgradeCode = keypressUpgrade
    elseif session.Property("ProductName") = "Helios Developer Tools" then

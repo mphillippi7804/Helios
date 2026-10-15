@@ -7,11 +7,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Profile Editor")]
-[assembly: AssemblyDescription("Helios Profile Editor")]
+[assembly: AssemblyTitle("Helios Developer Edition")]
+[assembly: AssemblyDescription("Helios Developer Edition")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("github.com/HeliosVirtualCockpit")]
-[assembly: AssemblyProduct("Profile Editor")]
+[assembly: AssemblyProduct("Helios Developer Edition")]
 [assembly: AssemblyCopyright("Copyright (c) 2014 Craig Courtney, 2020 Helios Contributors")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

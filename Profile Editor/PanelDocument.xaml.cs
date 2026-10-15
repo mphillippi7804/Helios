@@ -34,35 +34,8 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
             InitializeComponent();
 
             PanelEditor.SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
-            PreviewMouseWheel += Window_PreviewMouseWheel;
-        }
-
-        private void Window_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (Keyboard.Modifiers != ModifierKeys.Control)
-                return;
-
-            const double zoomChange = 0.25;
-            if (e.Delta > 0)
-            {
-                if (!(PanelEditor.ZoomLevel < 4d))
-                {
-                    return;
-                }
-
-                PanelEditor.ZoomLevel = Math.Min(PanelEditor.ZoomLevel + zoomChange, 4d);
-                e.Handled = true;
-            }
-            else if (e.Delta < 0)
-            {
-                if (!(PanelEditor.ZoomLevel > -4d))
-                {
-                    return;
-                }
-
-                PanelEditor.ZoomLevel = Math.Max(PanelEditor.ZoomLevel - zoomChange, -4d);
-                e.Handled = true;
-            }
+            // Ctrl + wheel zooms toward the mouse pointer, side wheel or Shift + wheel scrolls left and right
+            EditorMouseWheel.Attach(this, PanelScroller, PanelEditor);
         }
 
         public PanelDocument(HeliosPanel panel)

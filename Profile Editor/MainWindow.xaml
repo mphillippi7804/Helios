@@ -6,7 +6,7 @@
         xmlns:heliosViewModel="clr-namespace:GadrocsWorkshop.Helios.Windows.ViewModel;assembly=Helios"
         xmlns:ad="https://github.com/Dirkster99/AvalonDock"
         xmlns:tools="clr-namespace:GadrocsWorkshop.Helios.Tools;assembly=Helios"
-        Title="{Binding ElementName=ProfileEditorWindow,Path=Profile.Name}" 
+        Title="{Binding ElementName=ProfileEditorWindow,Path=Profile.Name,StringFormat='Helios Developer Edition - {0}',TargetNullValue='Helios Developer Edition',FallbackValue='Helios Developer Edition'}" 
         Height="900" 
         Width="1400" 
         Name="ProfileEditorWindow" 
@@ -117,6 +117,13 @@
                         <Label FontFamily="Segoe MDL2 Assets" FontSize="16" Margin="0" Padding="0" Content="&#xE74D;"/>
                     </MenuItem.Icon>
                 </MenuItem>
+                <Separator />
+                <MenuItem Header="_Group" Command="local:ProfileEditorCommands.Group" InputGestureText="Ctrl+G">
+                    <MenuItem.ToolTip>Place the selected items in one panel, or merge them into the first selected panel.</MenuItem.ToolTip>
+                </MenuItem>
+                <MenuItem Header="U_ngroup" Command="local:ProfileEditorCommands.Ungroup" InputGestureText="Ctrl+U">
+                    <MenuItem.ToolTip>Move everything out of the selected panels and delete the empty panels.</MenuItem.ToolTip>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem Header="Interface _Status" Command="{x:Static local:ProfileEditorCommands.ViewInterfaceStatus}" />
@@ -209,6 +216,13 @@
                 <Button Command="local:ProfileEditorCommands.SpaceVertical">
                     <Image Source="ToolbarGraphics\SpaceVertical.png" />
                     <Button.ToolTip>Space evenly selected controls verticaly.</Button.ToolTip>
+                </Button>
+                <Separator />
+                <TextBox x:Name="FindTextBox" Width="200" VerticalContentAlignment="Center" Margin="2,0" KeyDown="FindTextBox_KeyDown">
+                    <TextBox.ToolTip>Text to search for in device names, properties, image paths and bindings.</TextBox.ToolTip>
+                </TextBox>
+                <Button x:Name="FindAllButton" Content="Find All" Padding="6,0" Click="FindAll_Click">
+                    <Button.ToolTip>Find every instance of this value in the profile.</Button.ToolTip>
                 </Button>
             </ToolBar>
         </ToolBarTray>

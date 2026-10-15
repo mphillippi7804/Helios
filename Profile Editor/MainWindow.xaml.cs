@@ -87,6 +87,11 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
         private LoadingAdorner _loadingAdorner;
         private readonly List<DocumentMeta> _documents = new List<DocumentMeta>();
 
+        /// <summary>
+        /// the Find All results popup, if currently open
+        /// </summary>
+        private FindReplace.FindResultsWindow _findResultsWindow;
+
         private readonly InterfaceStatusScanner _configurationCheck = new InterfaceStatusScanner();
 
         /// <summary>
@@ -421,6 +426,9 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
                     meta.hobj.PropertyChanged -= DocumentObject_PropertyChanged;
                 }
                 _documents.Clear();
+
+                // search results refer to devices in the old profile
+                _findResultsWindow?.Close();
 
                 if (Profile != null)
                 {
@@ -1176,6 +1184,160 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
             meta.document.Close();
             meta.hobj.PropertyChanged -= DocumentObject_PropertyChanged;
         }
+
+        #region Find All / Replace
+
+        private void FindTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                FindAll();
+                e.Handled = true;
+            }
+        }
+
+        private void FindAll_Click(object sender, RoutedEventArgs e)
+        {
+            FindAll();
+        }
+
+        private void FindAll()
+        {
+            string searchText = FindTextBox.Text;
+            if (string.IsNullOrEmpty(searchText) || Profile == null)
+            {
+                return;
+            }
+
+            List<FindReplace.SearchResultRow> rows = FindReplace.ProfileSearch.Find(Profile, searchText);
+            switch (rows.Count)
+            {
+                case 0:
+                    MessageBox.Show(this, $"\"{searchText}\" was not found in this profile.", "Find All",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                case 1:
+                    // a single instance goes straight to the layer containing the device
+                    _findResultsWindow?.Close();
+                    GoToVisuals(new List<HeliosVisual> { rows[0].Visual });
+                    return;
+            }
+
+            if (_findResultsWindow == null)
+            {
+                _findResultsWindow = new FindReplace.FindResultsWindow(() => Profile, GoToVisuals) { Owner = this };
+                _findResultsWindow.Closed += (s, args) => _findResultsWindow = null;
+            }
+            _findResultsWindow.ShowResults(searchText, rows);
+            _findResultsWindow.Show();
+            _findResultsWindow.Activate();
+        }
+
+        /// <summary>
+        /// Open (or switch to) the tab for the monitor or panel each device is placed on, and select the devices there.
+        /// </summary>
+        private void GoToVisuals(IList<HeliosVisual> visuals)
+        {
+            // group the devices by the layer (monitor or panel tab) they are placed on
+            Dictionary<HeliosVisual, List<HeliosVisual>> byContainer = new Dictionary<HeliosVisual, List<HeliosVisual>>();
+            List<HeliosVisual> containerOrder = new List<HeliosVisual>();
+            foreach (HeliosVisual visual in visuals)
+            {
+                HeliosVisual container = FindEditableContainer(visual, out HeliosVisual selectable);
+                if (container == null)
+                {
+                    continue;
+                }
+                if (!byContainer.TryGetValue(container, out List<HeliosVisual> selection))
+                {
+                    selection = new List<HeliosVisual>();
+                    byContainer.Add(container, selection);
+                    containerOrder.Add(container);
+                }
+                if (selectable != null && !selection.Contains(selectable))
+                {
+                    selection.Add(selectable);
+                }
+            }
+
+            DocumentMeta first = null;
+            foreach (HeliosVisual container in containerOrder)
+            {
+                DocumentMeta meta = AddNewDocument(container);
+                if (meta == null)
+                {
+                    continue;
+                }
+                first = first ?? meta;
+                List<HeliosVisual> selection = byContainer[container];
+
+                // a newly created tab has not built its visual views yet, so select after layout
+                Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() => SelectInEditor(meta, selection)));
+            }
+
+            if (first != null)
+            {
+                first.document.IsActive = true;
+            }
+        }
+
+        /// <summary>
+        /// Find the monitor or panel whose tab shows this device, and the item on that tab that should be selected
+        /// (the device itself, or its top level ancestor if it is a part of a composite control).
+        /// </summary>
+        private static HeliosVisual FindEditableContainer(HeliosVisual visual, out HeliosVisual selectable)
+        {
+            selectable = null;
+            if (visual == null)
+            {
+                return null;
+            }
+
+            HeliosVisual child = visual;
+            HeliosVisual parent = visual.Parent;
+            while (parent != null && !(parent is Monitor) && !(parent is HeliosPanel))
+            {
+                child = parent;
+                parent = parent.Parent;
+            }
+
+            if (parent == null)
+            {
+                // the device is a monitor itself
+                return visual is Monitor ? visual : null;
+            }
+
+            selectable = child;
+            return parent;
+        }
+
+        private static void SelectInEditor(DocumentMeta meta, List<HeliosVisual> selection)
+        {
+            HeliosVisualContainerEditor editor;
+            switch (meta.editor)
+            {
+                case PanelDocument panelDocument:
+                    editor = panelDocument.PanelEditor;
+                    break;
+                case MonitorDocument monitorDocument:
+                    editor = monitorDocument.MonitorEditor;
+                    break;
+                default:
+                    return;
+            }
+
+            editor.UpdateLayout();
+            editor.SelectedItems.Clear();
+            foreach (HeliosVisual visual in selection)
+            {
+                editor.SelectedItems.Add(visual);
+            }
+
+            HeliosVisualView view = selection.Count > 0 ? editor.GetViewerForVisual(selection[0]) : null;
+            view?.BringIntoView();
+        }
+
+        #endregion
 
         public void OnExecuteUndo(object sender, ExecutedRoutedEventArgs e)
         {

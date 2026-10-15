@@ -1,0 +1,70 @@
+﻿<Window x:Class="GadrocsWorkshop.Helios.ProfileEditor.FindReplace.FindResultsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Find All Results"
+        Height="520" Width="1100"
+        MinHeight="300" MinWidth="600"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+    <Window.Resources>
+        <Style x:Key="WrappedCell" TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Margin" Value="2,1" />
+        </Style>
+    </Window.Resources>
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="SummaryText" Grid.Row="0" Margin="0,0,0,6" />
+
+        <DataGrid x:Name="ResultsGrid" Grid.Row="1"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  SelectionMode="Extended"
+                  SelectionUnit="FullRow"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  HeadersVisibility="Column"
+                  GridLinesVisibility="All"
+                  VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Auto"
+                  MouseDoubleClick="ResultsGrid_MouseDoubleClick"
+                  SelectionChanged="ResultsGrid_SelectionChanged">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Panel" Binding="{Binding Panel}" Width="140" ElementStyle="{StaticResource WrappedCell}" />
+                <DataGridTextColumn Header="Device" Binding="{Binding Device}" Width="160" ElementStyle="{StaticResource WrappedCell}" />
+                <DataGridTextColumn Header="Binding" Binding="{Binding Bindings}" Width="2*" ElementStyle="{StaticResource WrappedCell}" />
+                <DataGridTextColumn Header="Path" Binding="{Binding Path}" Width="2*" ElementStyle="{StaticResource WrappedCell}" />
+                <DataGridTextColumn Header="Images" Binding="{Binding Images}" Width="2*" ElementStyle="{StaticResource WrappedCell}" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
+            <Button x:Name="GoToButton" Content="Go To" MinWidth="80" Padding="8,2" Click="GoTo_Click" IsEnabled="False"
+                    ToolTip="Open the tab containing each selected device and select it." />
+        </StackPanel>
+
+        <Grid Grid.Row="3" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="ReplaceTextBox" Grid.Column="0" VerticalContentAlignment="Center" MinHeight="22"
+                     ToolTip="Text that will replace the Find value." />
+            <Button x:Name="ReplaceButton" Grid.Column="1" Content="Replace" MinWidth="80" Padding="8,2" Margin="6,0,0,0" Click="Replace_Click" IsEnabled="False"
+                    ToolTip="Replace the Find value in the selected rows only." />
+            <Button x:Name="ReplaceAllButton" Grid.Column="2" Content="Replace All" MinWidth="80" Padding="8,2" Margin="6,0,0,0" Click="ReplaceAll_Click"
+                    ToolTip="Replace every instance of the Find value in the whole profile." />
+        </Grid>
+
+        <TextBlock x:Name="StatusText" Grid.Row="4" Margin="0,6,0,0" Foreground="DimGray" TextWrapping="Wrap" />
+    </Grid>
+</Window>
