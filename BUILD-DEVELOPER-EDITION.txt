@@ -34,9 +34,13 @@ Option B - build on a Windows PC
     nuget restore Thirdparty/OpenMacroBoard.SDK/src/OpenMacroBoard.VirtualBoard/OpenMacroBoard.VirtualBoard.csproj
     nuget restore Helios.sln
     build.cmd test
+  or, to give the build its own version number (needed for a new installer to replace an older one):
+    build.cmd dev 1.6.1500.0
+  (keep the third number between 1000 and 1999 and higher than the version you have installed;
+   GitHub builds count up automatically: 1.6.1005.0, 1.6.1006.0, ...)
   The installers are written to:
-    Helios Installer\Release\Helios.1.6.1000.0.msi      (64-bit)
-    Helios Installer\Release32\Helios32bit.1.6.1000.0.msi (32-bit)
+    Helios Installer\Release\Helios.<version>.msi      (64-bit)
+    Helios Installer\Release32\Helios32bit.<version>.msi (32-bit)
   (The file is named Helios...msi because the build scripts expect that name;
    it installs as "Helios Developer Edition" in Program Files\Helios Development,
    alongside regular Helios.)

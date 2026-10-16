@@ -35,6 +35,17 @@ jobs:
           mkdir "%RUNNER_TEMP%\package\Helios-Developer-Edition"
           tar -x -f "%RUNNER_TEMP%\source.tar" -C "%RUNNER_TEMP%\package\Helios-Developer-Edition"
 
+      - name: Choose version number
+        # every build gets the next number (1.6.1001.0, 1.6.1002.0, ...) so a new installer replaces the previous one;
+        # it stays in the 1.6.1xxx.x range that the installer scripts treat as a development build
+        shell: pwsh
+        run: |
+          $build = 1000 + ${{ github.run_number }}
+          if ($build -gt 1999) { throw "Developer Edition version numbers are exhausted; change the numbering in DevBuild.yml." }
+          $version = "1.6.$build.0"
+          echo "DEV_VERSION=$version" >> $env:GITHUB_ENV
+          echo "Building Helios Developer Edition $version"
+
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
@@ -66,7 +77,7 @@ jobs:
         continue-on-error: true
         shell: cmd
         run: |
-          build.cmd test
+          build.cmd dev %DEV_VERSION%
           echo "rc=%errorlevel%" >> $env:GITHUB_ENV
 
       - name: zip up build logs
@@ -119,8 +130,8 @@ jobs:
           Copy-Item (Join-Path $out "Helios-Developer-Edition-32bit.msi") $inst
           tar -a -c -f (Join-Path $out "Helios-Developer-Edition-source-and-installers.zip") -C (Join-Path $env:RUNNER_TEMP "package") "Helios-Developer-Edition"
 
-          $tag = "developer-edition-build-${{ github.run_number }}"
-          $notes = "Helios Developer Edition built from commit ${{ github.sha }} on branch ${{ github.ref_name }}.`n`n" +
+          $tag = "developer-edition-$env:DEV_VERSION"
+          $notes = "Helios Developer Edition $env:DEV_VERSION built from commit ${{ github.sha }} on branch ${{ github.ref_name }}.`n`n" +
                    "- Helios-Developer-Edition-64bit.msi: installer for 64-bit Windows (most PCs)`n" +
                    "- Helios-Developer-Edition-32bit.msi: installer for 32-bit Windows`n" +
                    "- Helios-Developer-Edition-source-and-installers.zip: full source code with both installers in its Installers folder`n`n" +
@@ -130,7 +141,7 @@ jobs:
             (Join-Path $out "Helios-Developer-Edition-32bit.msi") `
             (Join-Path $out "Helios-Developer-Edition-source-and-installers.zip") `
             --repo "${{ github.repository }}" --target "${{ github.sha }}" `
-            --title "Helios Developer Edition (build ${{ github.run_number }})" --notes $notes
+            --title "Helios Developer Edition $env:DEV_VERSION" --notes $notes
           if ($LASTEXITCODE -ne 0) { throw "Publishing the release failed." }
 
       - name: Upload Helios_Installers 1

@@ -164,8 +164,10 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
                 ClearBindings();
                 BindingItems = new ProfileExplorerTreeItemCollection();
 
+                // "Input": the actions that feed this device; "Output": the triggers it sends out
                 ProfileExplorerTreeItem bindings = new ProfileExplorerTreeItem(BindingObject,
-                    ProfileExplorerTreeItemType.Action | ProfileExplorerTreeItemType.Trigger | ProfileExplorerTreeItemType.Binding);
+                    ProfileExplorerTreeItemType.Action | ProfileExplorerTreeItemType.Trigger | ProfileExplorerTreeItemType.Binding |
+                    ProfileExplorerTreeItemType.GroupInputOutput);
                 if (bindings.HasChildren)
                 {
                     foreach (ProfileExplorerTreeItem item in bindings.Children)
@@ -200,7 +202,10 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
         {
             ProfileExplorerTreeItemType sourceTypes = ProfileExplorerTreeItemType.Interface | ProfileExplorerTreeItemType.Monitor |
                                                       ProfileExplorerTreeItemType.Panel | ProfileExplorerTreeItemType.Visual |
-                                                      ProfileExplorerTreeItemType.Trigger | ProfileExplorerTreeItemType.Action;
+                                                      ProfileExplorerTreeItemType.Trigger | ProfileExplorerTreeItemType.Action |
+                                                      // device > name of the thing > "Input" (triggers providing data) / "Output" (actions sending data)
+                                                      ProfileExplorerTreeItemType.GroupByElementName | ProfileExplorerTreeItemType.GroupInputOutput |
+                                                      ProfileExplorerTreeItemType.TriggersAreInput;
 
             if (BindingObject != null && BindingObject.Profile != _actionTriggerProfile)
             {

@@ -2,6 +2,10 @@
 @echo off
 if "%1" == "test" (
 	set HELIOS_BUILT_VERSION=1.6.1000.0
+) else if "%1" == "dev" (
+	REM Developer Edition build with an explicit version, e.g. "build.cmd dev 1.6.1005.0",
+	REM without the release checks (clean working directory, git tag) below
+	set HELIOS_BUILT_VERSION=%2
 ) else (
 	set HELIOS_BUILT_VERSION=%1
 	REM make sure clean working directory
