@@ -6,7 +6,7 @@
         xmlns:heliosViewModel="clr-namespace:GadrocsWorkshop.Helios.Windows.ViewModel;assembly=Helios"
         xmlns:ad="https://github.com/Dirkster99/AvalonDock"
         xmlns:tools="clr-namespace:GadrocsWorkshop.Helios.Tools;assembly=Helios"
-        Title="{Binding ElementName=ProfileEditorWindow,Path=Profile.Name,StringFormat='Helios Developer Edition - {0}',TargetNullValue='Helios Developer Edition',FallbackValue='Helios Developer Edition'}" 
+        Title="{Binding ElementName=ProfileEditorWindow,Path=Profile.Name,StringFormat='Developer Edition - {0}',TargetNullValue='Developer Edition',FallbackValue='Developer Edition'}" 
         Height="900" 
         Width="1400" 
         Name="ProfileEditorWindow" 

@@ -34,7 +34,7 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
             get;
             set;
         } = new List<string>();
-        [Usage(ApplicationAlias = "\"Profile Editor.exe\"")]
+        [Usage(ApplicationAlias = "\"Developer Edition.exe\"")]
         public static IEnumerable<Example> Examples
         {
             get

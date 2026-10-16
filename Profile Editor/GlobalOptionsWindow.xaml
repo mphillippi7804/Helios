@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GadrocsWorkshop.Helios.ProfileEditor"
              mc:Ignorable="d" 
-             Title="Helios Developer Edition Options"
+             Title="Developer Edition Options"
              SizeToContent="WidthAndHeight"
              d:DataContext="{d:DesignInstance Type={x:Type local:GlobalOptions}}">
     <WrapPanel Orientation="Vertical" Margin="6">

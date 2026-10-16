@@ -77,7 +77,11 @@ else
    Set devBuild = New RegExp
    devBuild.Pattern = "[0-9]+\.[0-9]+\.1...\.[0-9]+"
    if devBuild.Test(version) then
-     Execute database, "DELETE FROM Shortcut WHERE `Directory_` = 'DesktopFolder' " 
+     ' development builds normally get no desktop shortcuts, but Helios Developer Edition keeps
+     ' its "Developer Edition" desktop shortcut (it is the only desktop shortcut it installs)
+     if session.Property("ProductName") <> "Helios Developer Edition" then
+         Execute database, "DELETE FROM Shortcut WHERE `Directory_` = 'DesktopFolder' " 
+     end if
      Execute database, "UPDATE Shortcut SET `Name` = 'CONTRO~1|Dev Control Center Debug' WHERE `Name` = 'CONTRO~1|Control Center Debug'"
      Execute database, "UPDATE Shortcut SET `Name` = 'PROFIL~1|Dev Profile Editor Debug' WHERE `Name` = 'PROFIL~1|Profile Editor Debug'"
      Execute database, "UPDATE Shortcut SET `Name` = 'HELIOS~2|Dev Helios Profile Editor' WHERE `Name` = 'HELIOS~2|Helios Profile Editor'"

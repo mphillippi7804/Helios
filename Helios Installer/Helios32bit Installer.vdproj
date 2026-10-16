@@ -4219,7 +4219,7 @@
         {
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_04C07E0DE5FE4A0EB4EDFB607E9D253D"
             {
-            "Name" = "8:Helios Developer Edition"
+            "Name" = "8:Developer Edition"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
@@ -4247,7 +4247,7 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_4959DA6DB3794FBA92F8B9F85C1ACFC9"
             {
-            "Name" = "8:Helios Developer Edition"
+            "Name" = "8:Developer Edition"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
@@ -4259,25 +4259,11 @@
             "Icon" = "8:_0772EF6D6A1143D284A5C9123C4C6E66"
             "Feature" = "8:"
             }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_4BAAECF7E41641BDB7D05D98A8B87D5D"
-            {
-            "Name" = "8:Helios Control Center"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_60AF79F40A8140E9B89B3252BF8A567C"
-            "Folder" = "8:_AD59734AD6DF48A39047EBE90EC7C76E"
-            "WorkingFolder" = "8:_E384890BFB804E8DBFE6ADCE0EDB8172"
-            "Icon" = "8:_732146C3695F4256A3FBB284936E4563"
-            "Feature" = "8:"
-            }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_53AFDF753B84467AB063EF6F037857AC"
             {
-            "Name" = "8:Helios Developer Edition Debug"
+            "Name" = "8:Developer Edition Debug"
             "Arguments" = "8:-l Debug"
-            "Description" = "8:Profile Editor with Loglevel Debug"
+            "Description" = "8:Developer Edition with Loglevel Debug"
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
@@ -4797,7 +4783,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_0C23ED5842AB4CD4BE1266E39F55D6D2"
             {
-            "SourcePath" = "8:..\\Profile Editor\\obj\\AnyCPU32\\Release\\Profile Editor.exe"
+            "SourcePath" = "8:..\\Profile Editor\\obj\\AnyCPU32\\Release\\Developer Edition.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E384890BFB804E8DBFE6ADCE0EDB8172"

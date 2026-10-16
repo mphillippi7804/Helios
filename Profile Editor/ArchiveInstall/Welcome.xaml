@@ -26,7 +26,7 @@
         <TextBlock Grid.Row="2" Grid.Column="0" Margin="10,10,10,0" Padding="0" TextWrapping="Wrap">Work through the Interface Status until all the interfaces shown there have a green "check mark" status.</TextBlock>
         <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Margin="10,5,10,10" Padding="0" TextWrapping="Wrap">Use the button on the right to get started.  When you are done, return here via the "Installlation Mode" tab shown at the bottom.</TextBlock>
         <Button Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Margin="10,5,10,10" Content="Start" Command="{x:Static profileEditor:ProfileEditorCommands.ViewInterfaceStatus}" Style="{StaticResource InterfaceEditorButton}"/>
-        <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Margin="10" Padding="0" TextWrapping="Wrap">Then use the button on the right to switch to the regular Helios Developer Edition interface or simply exit the program.</TextBlock>
+        <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Margin="10" Padding="0" TextWrapping="Wrap">Then use the button on the right to switch to the regular Developer Edition interface or simply exit the program.</TextBlock>
         <Button Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" Margin="10" Content="Reset UI" Command="{x:Static profileEditor:ProfileEditorCommands.RestoreDefaultLayout}" Style="{StaticResource InterfaceEditorButton}"/>
         <TextBlock Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" Margin="10" Padding="0" TextWrapping="Wrap">To use the profile you just installed, please run Helios Control Center from the Windows Start menu.</TextBlock>
     </Grid>
