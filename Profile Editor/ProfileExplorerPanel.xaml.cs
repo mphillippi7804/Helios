@@ -94,6 +94,9 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
             item.ExpandAll();
             ProfileExplorerItems = item.Children;
 
+            // show every level alphabetically (display only; the profile's own order is unchanged)
+            AlphabeticalTreeSort.AttachAll(ProfileExplorerItems);
+
             ButtonItemExpand.IsEnabled = false;
             ButtonItemCollapse.IsEnabled = false;
             ButtonBranchExpand.IsEnabled = false;

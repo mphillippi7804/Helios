@@ -39,8 +39,11 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private HeliosProfile _actionTriggerProfile = null;
-        private ProfileExplorerTreeItem _actionsList = null;
-        private ProfileExplorerTreeItem _triggerList = null;
+
+        /// <summary>
+        /// everything in the profile that can be bound: triggers and actions together
+        /// </summary>
+        private ProfileExplorerTreeItem _sourceList = null;
 
         static BindingsPanel()
         {
@@ -150,6 +153,10 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
             ClearSources();
         }
 
+        /// <summary>
+        /// the selected object's actions with their input bindings and its triggers with their output bindings,
+        /// shown together (formerly the separate Input and Output tabs)
+        /// </summary>
         private void LoadBindings()
         {
             if (BindingObject != null)
@@ -157,28 +164,18 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
                 ClearBindings();
                 BindingItems = new ProfileExplorerTreeItemCollection();
 
-                if (BindingType == BindingPanelType.Input)
+                ProfileExplorerTreeItem bindings = new ProfileExplorerTreeItem(BindingObject,
+                    ProfileExplorerTreeItemType.Action | ProfileExplorerTreeItemType.Trigger | ProfileExplorerTreeItemType.Binding);
+                if (bindings.HasChildren)
                 {
-                    ProfileExplorerTreeItem inputBindings = new ProfileExplorerTreeItem(BindingObject, ProfileExplorerTreeItemType.Action | ProfileExplorerTreeItemType.Binding);
-                    if (inputBindings.HasChildren)
+                    foreach (ProfileExplorerTreeItem item in bindings.Children)
                     {
-                        foreach (ProfileExplorerTreeItem item in inputBindings.Children)
-                        {
-                            BindingItems.Add(item);
-                        }
+                        BindingItems.Add(item);
                     }
                 }
-                else if (BindingType == BindingPanelType.Output)
-                {
-                    ProfileExplorerTreeItem outputBindings = new ProfileExplorerTreeItem(BindingObject, ProfileExplorerTreeItemType.Trigger | ProfileExplorerTreeItemType.Binding);
-                    if (outputBindings.HasChildren)
-                    {
-                        foreach (ProfileExplorerTreeItem item in outputBindings.Children)
-                        {
-                            BindingItems.Add(item);
-                        }
-                    }
-                }
+
+                // alphabetical at every level; for the same name, input before output
+                AlphabeticalTreeSort.AttachAll(BindingItems, AlphabeticalTreeSort.InputBindingsFirst);
             }
             else
             {
@@ -195,67 +192,40 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
             }
         }
 
+        /// <summary>
+        /// everything in the profile that can be bound, triggers and actions together (formerly the separate
+        /// Input and Output tabs); drag a trigger onto an action, or an action onto a trigger, in the Bindings list
+        /// </summary>
         private void LoadSources()
         {
-            ProfileExplorerTreeItemType triggerTypes = ProfileExplorerTreeItemType.Interface | ProfileExplorerTreeItemType.Monitor | ProfileExplorerTreeItemType.Panel | ProfileExplorerTreeItemType.Visual | ProfileExplorerTreeItemType.Trigger;
-            ProfileExplorerTreeItemType actionTypes = ProfileExplorerTreeItemType.Interface | ProfileExplorerTreeItemType.Monitor | ProfileExplorerTreeItemType.Panel | ProfileExplorerTreeItemType.Visual | ProfileExplorerTreeItemType.Action;
+            ProfileExplorerTreeItemType sourceTypes = ProfileExplorerTreeItemType.Interface | ProfileExplorerTreeItemType.Monitor |
+                                                      ProfileExplorerTreeItemType.Panel | ProfileExplorerTreeItemType.Visual |
+                                                      ProfileExplorerTreeItemType.Trigger | ProfileExplorerTreeItemType.Action;
 
-            if (BindingObject != null)
+            if (BindingObject != null && BindingObject.Profile != _actionTriggerProfile)
             {
-                if (BindingObject.Profile != _actionTriggerProfile)
+                ClearSources();
+                HeliosProfile newProfile = BindingObject.Profile;
+                if (newProfile != null)
                 {
-                    ClearSources();
-                    HeliosProfile newProfile = BindingObject.Profile;
-                    if (newProfile != null)
-                    {
-                        Logger.Debug("loading actions for bindings");
-                        _actionsList = new ProfileExplorerTreeItem(newProfile, actionTypes);
+                    Logger.Debug("loading triggers and actions for bindings");
+                    _sourceList = new ProfileExplorerTreeItem(newProfile, sourceTypes);
 
-                        // list monitors, panels, devices and actions alphabetically at every level
-                        AlphabeticalTreeSort.Attach(_actionsList);
-                        Logger.Debug("loading triggers for bindings");
-                        _triggerList = new ProfileExplorerTreeItem(newProfile, triggerTypes);
-                    }
-                    _actionTriggerProfile = newProfile;
+                    // alphabetical at every level; for the same name, input (triggers) before output (actions)
+                    AlphabeticalTreeSort.AttachAll(_sourceList.Children, AlphabeticalTreeSort.TriggersFirst);
                 }
+                _actionTriggerProfile = newProfile;
             }
 
-            if (BindingType == BindingPanelType.Input)
-            {
-                if (_triggerList == null)
-                {
-                    ProfileExplorerItems = null;
-                }
-                else
-                {
-                    ProfileExplorerItems = _triggerList.Children;
-                }
-            }
-            else if (BindingType == BindingPanelType.Output)
-            {
-                if (_actionsList == null)
-                {
-                    ProfileExplorerItems = null;
-                }
-                else
-                {
-                    ProfileExplorerItems = _actionsList.Children;
-                }
-            }
+            ProfileExplorerItems = _sourceList?.Children;
         }
 
         private void ClearSources()
         {
-            if (_actionsList != null)
+            if (_sourceList != null)
             {
-                _actionsList.Disconnect();
-                _actionsList = null;
-            }
-
-            if (_triggerList != null)
-            {
-                _triggerList.Disconnect();
-                _triggerList = null;
+                _sourceList.Disconnect();
+                _sourceList = null;
             }
         }
 

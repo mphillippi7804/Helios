@@ -23,70 +23,68 @@ namespace GadrocsWorkshop.Helios.ProfileEditor.ViewModel
     using System.Windows.Data;
 
     /// <summary>
-    /// Shows every level under the "Monitors" folder of a tree in alphabetical order: monitors, the panels
-    /// and devices on them, and each device's actions.
+    /// Shows every level of a tree in alphabetical order, with numbers compared by value
+    /// ("Panel 2" before "Panel 10").  Items with the same name are then ordered by an optional rank,
+    /// which the Bindings panel uses to put input items before output items.
     ///
     /// Only the on-screen order changes; the tree items themselves keep their order, so layering and
-    /// the Profile Explorer are not affected.  Items added or renamed later are kept in order too.
+    /// everything saved in the profile are not affected.  Items added or renamed later are kept in order too.
     /// </summary>
     internal class AlphabeticalTreeSort
     {
-        private const string MonitorsFolderName = "Monitors";
-
         private readonly HashSet<ProfileExplorerTreeItemCollection> _sorted = new HashSet<ProfileExplorerTreeItemCollection>();
+        private readonly NaturalNameComparer _comparer;
+
+        private AlphabeticalTreeSort(Func<ProfileExplorerTreeItem, int> rank)
+        {
+            _comparer = new NaturalNameComparer(rank);
+        }
 
         /// <summary>
-        /// start sorting the Monitors branch of a tree built for a whole profile
+        /// sort every level of the tree whose top level is the given collection
         /// </summary>
-        public static void Attach(ProfileExplorerTreeItem profileRoot)
+        /// <param name="topLevel">the collection shown at the top of the tree view</param>
+        /// <param name="rank">optional secondary order for items with the same name; lower comes first</param>
+        public static void AttachAll(ProfileExplorerTreeItemCollection topLevel, Func<ProfileExplorerTreeItem, int> rank = null)
         {
-            if (profileRoot == null)
+            if (topLevel == null)
             {
                 return;
             }
-
-            AlphabeticalTreeSort sorter = new AlphabeticalTreeSort();
-            foreach (ProfileExplorerTreeItem item in profileRoot.Children)
-            {
-                sorter.SortIfMonitorsFolder(item);
-            }
-
-            // the Monitors folder is only created once there is something in it
-            profileRoot.Children.CollectionChanged += sorter.ProfileRoot_CollectionChanged;
+            new AlphabeticalTreeSort(rank).SortLevelAndBelow(topLevel);
         }
 
-        private void ProfileRoot_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        /// <summary>
+        /// rank for lists of things to bind: triggers (the Input side) before actions (the Output side)
+        /// </summary>
+        public static int TriggersFirst(ProfileExplorerTreeItem item) =>
+            item.ItemType.HasFlag(ProfileExplorerTreeItemType.Trigger) ? 0 :
+            item.ItemType.HasFlag(ProfileExplorerTreeItemType.Action) ? 1 : 0;
+
+        /// <summary>
+        /// rank for a device's bindings: its actions and their input bindings before its triggers and their output bindings
+        /// </summary>
+        public static int InputBindingsFirst(ProfileExplorerTreeItem item)
         {
-            if (e.NewItems == null)
+            if (item.ItemType.HasFlag(ProfileExplorerTreeItemType.Binding))
             {
-                return;
+                return item.Parent != null && item.Parent.ItemType.HasFlag(ProfileExplorerTreeItemType.Trigger) ? 1 : 0;
             }
-            foreach (ProfileExplorerTreeItem item in e.NewItems)
-            {
-                SortIfMonitorsFolder(item);
-            }
+            return item.ItemType.HasFlag(ProfileExplorerTreeItemType.Trigger) ? 1 : 0;
         }
 
-        private void SortIfMonitorsFolder(ProfileExplorerTreeItem item)
+        private void SortLevelAndBelow(ProfileExplorerTreeItemCollection children)
         {
-            if (item.ItemType == ProfileExplorerTreeItemType.Folder && item.Name == MonitorsFolderName)
+            SortLevel(children);
+            foreach (ProfileExplorerTreeItem child in children)
             {
-                SortBranch(item);
-            }
-        }
-
-        private void SortBranch(ProfileExplorerTreeItem item)
-        {
-            SortLevel(item.Children);
-            foreach (ProfileExplorerTreeItem child in item.Children)
-            {
-                SortBranch(child);
+                SortLevelAndBelow(child.Children);
             }
         }
 
         private void SortLevel(ProfileExplorerTreeItemCollection children)
         {
-            if (!_sorted.Add(children))
+            if (children == null || !_sorted.Add(children))
             {
                 return;
             }
@@ -94,12 +92,12 @@ namespace GadrocsWorkshop.Helios.ProfileEditor.ViewModel
             // the tree view shows this collection through its default view, so sorting the view sorts the display
             if (CollectionViewSource.GetDefaultView(children) is ListCollectionView view)
             {
-                view.CustomSort = NaturalNameComparer.Instance;
+                view.CustomSort = _comparer;
                 view.IsLiveSorting = true;
                 view.LiveSortingProperties.Add(nameof(ProfileExplorerTreeItem.Name));
             }
 
-            // new panels, devices or device folders appearing later get sorted as well
+            // things appearing later (new panels, devices, folders, bindings) get sorted as well
             children.CollectionChanged += Level_CollectionChanged;
         }
 
@@ -111,22 +109,34 @@ namespace GadrocsWorkshop.Helios.ProfileEditor.ViewModel
             }
             foreach (ProfileExplorerTreeItem item in e.NewItems)
             {
-                SortBranch(item);
+                SortLevelAndBelow(item.Children);
             }
         }
 
-        /// <summary>
-        /// alphabetical, ignoring case, with numbers compared by value so "Panel 2" comes before "Panel 10"
-        /// </summary>
         private class NaturalNameComparer : IComparer
         {
-            public static readonly NaturalNameComparer Instance = new NaturalNameComparer();
+            private readonly Func<ProfileExplorerTreeItem, int> _rank;
+
+            public NaturalNameComparer(Func<ProfileExplorerTreeItem, int> rank)
+            {
+                _rank = rank;
+            }
 
             public int Compare(object x, object y)
             {
-                return CompareNames((x as ProfileExplorerTreeItem)?.Name, (y as ProfileExplorerTreeItem)?.Name);
+                ProfileExplorerTreeItem a = x as ProfileExplorerTreeItem;
+                ProfileExplorerTreeItem b = y as ProfileExplorerTreeItem;
+                int result = CompareNames(a?.Name, b?.Name);
+                if (result != 0 || _rank == null || a == null || b == null)
+                {
+                    return result;
+                }
+                return _rank(a).CompareTo(_rank(b));
             }
 
+            /// <summary>
+            /// alphabetical, ignoring case, with numbers compared by value so "Panel 2" comes before "Panel 10"
+            /// </summary>
             internal static int CompareNames(string a, string b)
             {
                 a = a ?? "";
@@ -170,7 +180,7 @@ namespace GadrocsWorkshop.Helios.ProfileEditor.ViewModel
                     }
                 }
 
-                // shorter wins when one is a prefix of the other; fall back to exact order for stability
+                // shorter wins when one is a prefix of the other; names that differ only by case keep a stable order
                 int lengthCompare = (a.Length - i).CompareTo(b.Length - j);
                 return lengthCompare != 0 ? lengthCompare : string.CompareOrdinal(a, b);
             }
