@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("github.com/HeliosVirtualCockpit")]
 [assembly: AssemblyProduct("Developer Edition")]
-[assembly: AssemblyCopyright("Copyright (c) 2014 Craig Courtney, 2020 Helios Contributors")]
+[assembly: AssemblyCopyright("Copyright (c) 2014 Craig Courtney, 2020-2026 Helios Contributors; modified 2026 by mphillippi7804 (GPL-3.0)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

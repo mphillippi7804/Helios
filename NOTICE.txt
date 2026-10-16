@@ -1,0 +1,36 @@
+NOTICE - modified version of Helios
+===================================
+
+This program is a MODIFIED VERSION of Helios Virtual Cockpit
+  Original:  https://github.com/HeliosVirtualCockpit/Helios
+  Copyright (c) 2014 Craig Courtney, 2020-2026 Helios Contributors
+
+Modified by GitHub user mphillippi7804, October 2026.
+  Source of this version:  https://github.com/mphillippi7804/Helios  (branch helios-developer-edition)
+  Each published installer has a matching "source-and-installers" zip on the Releases page:
+  https://github.com/mphillippi7804/Helios/releases
+
+This version is named "Helios Developer Edition" and installs to Program Files\Helios Development,
+alongside regular Helios.
+
+Changes made (relative to official Helios 1.6.6200.7):
+  - Profile Editor: Find All / Replace with results window (Go To, Replace, Replace All)
+  - Profile Editor: Ctrl + mouse wheel zooms toward the pointer; side wheel / Shift + wheel scroll sideways
+  - Replacing an object's image keeps the object's size (in the editor)
+  - Group (Ctrl+G) and Ungroup (Ctrl+U)
+  - Typing a Width/Height scales an object's contents proportionally; rotated children scale correctly
+  - Profile Explorer and Bindings panel listed alphabetically
+  - Bindings panel: Input and Output combined; grouped into "Input"/"Output" folders and by name
+  - Build: automatic version numbering and GitHub release publishing
+  - Renamed to "Helios Developer Edition" / "Developer Edition.exe", own install folder and desktop shortcut
+
+LICENSE
+  This program is free software: you can redistribute it and/or modify it under the terms of the
+  GNU General Public License as published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.  See LICENSE.txt for the full license text.
+
+  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+  even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+
+  It is not an official Helios release and is not endorsed by the Helios Virtual Cockpit project.
