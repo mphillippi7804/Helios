@@ -1,0 +1,42 @@
+Helios Developer Edition - how to build the installer
+=====================================================
+
+This folder is the complete source for Helios Developer Edition
+(branch helios-developer-edition), including the third-party submodules.
+
+Ready-made installers
+  Every GitHub build publishes a Release on https://github.com/mphillippi7804/Helios/releases with:
+    Helios-Developer-Edition-64bit.msi              installer for 64-bit Windows (most PCs)
+    Helios-Developer-Edition-32bit.msi              installer for 32-bit Windows
+    Helios-Developer-Edition-source-and-installers.zip
+                                                    this source, with both installers in its Installers folder
+  If this folder came from that zip, the installers are already in the Installers folder.
+
+Option A - GitHub (no software needed on your PC)
+  Your fork mphillippi7804/Helios already has this branch.
+  1. On github.com open your fork > Actions > "HeliosDev Build & Create MSI Files".
+  2. Click "Run workflow", choose branch helios-developer-edition, Run.
+  3. When it finishes, the installers appear as a new Release on your fork's Releases page
+     (they are also attached to the run page as artifacts for 2 days).
+
+Option B - build on a Windows PC
+  Requirements:
+    - Windows 10/11
+    - Visual Studio 2022 or newer with the ".NET desktop development" workload
+      and the .NET Framework 4.7.2 targeting pack
+    - Visual Studio extension "Microsoft Visual Studio Installer Projects"
+    - NuGet command line (nuget.exe) on PATH
+  Steps, from a "Developer Command Prompt for VS" in this folder:
+    nuget restore BuildMeFirst.sln
+    nuget restore "KeyPressReceiver/Keypress Receiver.csproj"
+    nuget restore Thirdparty/StreamDeckSharp/src/StreamDeckSharp/StreamDeckSharp.csproj
+    nuget restore Thirdparty/OpenMacroBoard.SDK/src/OpenMacroBoard.SDK/OpenMacroBoard.SDK.csproj
+    nuget restore Thirdparty/OpenMacroBoard.SDK/src/OpenMacroBoard.VirtualBoard/OpenMacroBoard.VirtualBoard.csproj
+    nuget restore Helios.sln
+    build.cmd test
+  The installers are written to:
+    Helios Installer\Release\Helios.1.6.1000.0.msi      (64-bit)
+    Helios Installer\Release32\Helios32bit.1.6.1000.0.msi (32-bit)
+  (The file is named Helios...msi because the build scripts expect that name;
+   it installs as "Helios Developer Edition" in Program Files\Helios Development,
+   alongside regular Helios.)

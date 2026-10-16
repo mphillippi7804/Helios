@@ -9,6 +9,10 @@ name: HeliosDev Build & Create MSI Files
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+
+# needed to publish the installers as a GitHub Release
+permissions:
+  contents: write
   
 jobs:  
   build:    
@@ -21,6 +25,15 @@ jobs:
           submodules: recursive
           fetch-tags: true
           fetch-depth: 0
+
+      - name: Stage clean source for the download package
+        # copy every tracked file (including submodules) before the build creates or changes anything
+        shell: cmd
+        run: |
+          git -c core.quotepath=off ls-files --recurse-submodules > "%RUNNER_TEMP%\source-files.txt"
+          tar -c -f "%RUNNER_TEMP%\source.tar" -T "%RUNNER_TEMP%\source-files.txt"
+          mkdir "%RUNNER_TEMP%\package\Helios-Developer-Edition"
+          tar -x -f "%RUNNER_TEMP%\source.tar" -C "%RUNNER_TEMP%\package\Helios-Developer-Edition"
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -82,6 +95,44 @@ jobs:
           tar -a -c -f "./Assets/HeliosDev32Bit_Installers.zip" -C "Helios Installer/Release32" *.msi
           tar -a -c -f "./Assets/HeliosDev_StreamDeck_Alpha.zip" -C "bin/x64/Release" Plugins/OpenMacroBoard.SDK.dll Plugins/OpenMacroBoard.VirtualBoard.dll Plugins/StreamDeckSharp.dll Plugins/HeliosMacroBoard.dll
     
+      - name: Publish installers as a GitHub Release
+        # each build becomes a Release on the repository's main page with:
+        #   - the 64-bit and 32-bit Developer Edition installers
+        #   - one zip with the full source and an Installers folder holding both installers
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $msi64 = Get-ChildItem "Helios Installer/Release/Helios.*.msi" | Select-Object -First 1
+          $msi32 = Get-ChildItem "Helios Installer/Release32/Helios32bit.*.msi" | Select-Object -First 1
+          if (-not $msi64 -or -not $msi32) { throw "Installers were not built, nothing to publish." }
+
+          $out = Join-Path $env:RUNNER_TEMP "release"
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          Copy-Item $msi64.FullName (Join-Path $out "Helios-Developer-Edition-64bit.msi")
+          Copy-Item $msi32.FullName (Join-Path $out "Helios-Developer-Edition-32bit.msi")
+
+          $pkg = Join-Path $env:RUNNER_TEMP "package/Helios-Developer-Edition"
+          $inst = Join-Path $pkg "Installers"
+          New-Item -ItemType Directory -Force -Path $inst | Out-Null
+          Copy-Item (Join-Path $out "Helios-Developer-Edition-64bit.msi") $inst
+          Copy-Item (Join-Path $out "Helios-Developer-Edition-32bit.msi") $inst
+          tar -a -c -f (Join-Path $out "Helios-Developer-Edition-source-and-installers.zip") -C (Join-Path $env:RUNNER_TEMP "package") "Helios-Developer-Edition"
+
+          $tag = "developer-edition-build-${{ github.run_number }}"
+          $notes = "Helios Developer Edition built from commit ${{ github.sha }} on branch ${{ github.ref_name }}.`n`n" +
+                   "- Helios-Developer-Edition-64bit.msi: installer for 64-bit Windows (most PCs)`n" +
+                   "- Helios-Developer-Edition-32bit.msi: installer for 32-bit Windows`n" +
+                   "- Helios-Developer-Edition-source-and-installers.zip: full source code with both installers in its Installers folder`n`n" +
+                   "Installs to Program Files\Helios Development alongside regular Helios and adds a Developer Edition shortcut to the desktop."
+          gh release create $tag `
+            (Join-Path $out "Helios-Developer-Edition-64bit.msi") `
+            (Join-Path $out "Helios-Developer-Edition-32bit.msi") `
+            (Join-Path $out "Helios-Developer-Edition-source-and-installers.zip") `
+            --repo "${{ github.repository }}" --target "${{ github.sha }}" `
+            --title "Helios Developer Edition (build ${{ github.run_number }})" --notes $notes
+          if ($LASTEXITCODE -ne 0) { throw "Publishing the release failed." }
+
       - name: Upload Helios_Installers 1
         uses: actions/upload-artifact@v4
         with:
