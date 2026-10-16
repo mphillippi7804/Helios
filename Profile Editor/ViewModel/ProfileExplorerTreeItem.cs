@@ -680,7 +680,11 @@ namespace GadrocsWorkshop.Helios.ProfileEditor.ViewModel
             string direction = null;
             if (_includeTypes.HasFlag(ProfileExplorerTreeItemType.GroupInputOutput))
             {
-                bool isInput = isTrigger == _includeTypes.HasFlag(ProfileExplorerTreeItemType.TriggersAreInput);
+                // TriggersAreInput applies to interfaces only: devices on monitors and panels always show their
+                // actions (data fed into the device) as "Input" and their triggers (data it sends) as "Output"
+                bool triggersAreInput = _includeTypes.HasFlag(ProfileExplorerTreeItemType.TriggersAreInput)
+                                        && !(element.Owner is HeliosVisual);
+                bool isInput = isTrigger == triggersAreInput;
                 direction = isInput ? InputFolderName : OutputFolderName;
             }
 

@@ -51,8 +51,9 @@ namespace GadrocsWorkshop.Helios.ProfileEditor.ViewModel
         GroupByElementName = 0x800,
 
         /// <summary>
-        /// treat triggers as "Input" and actions as "Output" (the view of things available to bind);
-        /// without this, actions feeding the device are "Input" and its triggers are "Output"
+        /// for interfaces, treat triggers as "Input" and actions as "Output" (the view of things available to bind);
+        /// devices on monitors and panels, and everything without this flag, show actions feeding the device as
+        /// "Input" and its triggers as "Output"
         /// </summary>
         TriggersAreInput = 0x1000
     }
