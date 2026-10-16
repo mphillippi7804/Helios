@@ -92,8 +92,21 @@ else
 
    ' allow any version to upgrade
    Execute database, "DELETE FROM Upgrade"
-   Execute database, "INSERT INTO Upgrade(UpgradeCode, VersionMin, Attributes, ActionProperty) VALUES ('" & upgradeCode & "', '" & version & "', '258', 'NEWERPRODUCTFOUND')"
-   Execute database, "INSERT INTO Upgrade(UpgradeCode, VersionMax, Attributes, ActionProperty) VALUES ('" & upgradeCode & "', '" & version & "', '0', 'PREVIOUSVERSIONINSTALLED')"
+   ' Windows Installer only compares the first three version numbers, so for example 1.6.6200.75 and 1.6.6200.7
+   ' count as the same version.  "build.cmd auto" sets HELIOS_REPLACE_SAME_VERSION so its installer replaces an
+   ' installed Helios with the same first three numbers, and is only blocked by a strictly newer one.
+   Dim replaceSameVersion
+   replaceSameVersion = (CreateObject("WScript.Shell").Environment("PROCESS")("HELIOS_REPLACE_SAME_VERSION") = "1")
+   if replaceSameVersion then
+      Wscript.Echo "Installer will replace an installed version with the same first three numbers"
+      ' 2 = detect only, minimum exclusive: only strictly newer installs block this one
+      Execute database, "INSERT INTO Upgrade(UpgradeCode, VersionMin, Attributes, ActionProperty) VALUES ('" & upgradeCode & "', '" & version & "', '2', 'NEWERPRODUCTFOUND')"
+      ' 512 = maximum inclusive: remove everything up to and including this version
+      Execute database, "INSERT INTO Upgrade(UpgradeCode, VersionMax, Attributes, ActionProperty) VALUES ('" & upgradeCode & "', '" & version & "', '512', 'PREVIOUSVERSIONINSTALLED')"
+   else
+      Execute database, "INSERT INTO Upgrade(UpgradeCode, VersionMin, Attributes, ActionProperty) VALUES ('" & upgradeCode & "', '" & version & "', '258', 'NEWERPRODUCTFOUND')"
+      Execute database, "INSERT INTO Upgrade(UpgradeCode, VersionMax, Attributes, ActionProperty) VALUES ('" & upgradeCode & "', '" & version & "', '0', 'PREVIOUSVERSIONINSTALLED')"
+   end if
 
    ' "UPDATE MsiAssemblyName SET Value = '" & version & "' WHERE `Value` = '" & sOldRel & "'"
 
