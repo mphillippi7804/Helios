@@ -92,7 +92,8 @@ namespace GadrocsWorkshop.Helios.Controls
 
                     ImageSource image = ConfigManager.ImageManager.LoadImage(_positions[0].Name); //_imageFile
 
-                    if (image != null)
+                    // in the Profile Editor, only size to the image the first time; afterwards the image scales to the control
+                    if (image != null && (string.IsNullOrEmpty(oldValue) || !DesignMode))
                     {
                         Width = image.Width;
                         Height = image.Height;

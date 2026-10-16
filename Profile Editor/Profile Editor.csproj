@@ -110,10 +110,12 @@
     <Compile Include="DragAndDropManager.cs" />
     <Compile Include="DragSelectionAdorner.cs" />
     <Compile Include="DropPreviewAdorner.cs" />
+    <Compile Include="EditorMouseWheel.cs" />
     <Compile Include="EditorMouseState.cs" />
     <Compile Include="GlassCockpitEditor.xaml.cs">
       <DependentUpon>GlassCockpitEditor.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GroupCommands.cs" />
     <Compile Include="HeliosVisualContainerEditor.cs" />
     <Compile Include="IDragSourceAdvisor.cs" />
     <Compile Include="IDropTargetAdvisor.cs" />
@@ -147,6 +149,11 @@
     <Compile Include="PropertyPanel.xaml.cs">
       <DependentUpon>PropertyPanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="FindReplace\FindResultsWindow.xaml.cs">
+      <DependentUpon>FindResultsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FindReplace\ProfileSearch.cs" />
+    <Compile Include="ProportionalResize.cs" />
     <Compile Include="ResetMonitors.xaml.cs">
       <DependentUpon>ResetMonitors.xaml</DependentUpon>
     </Compile>
@@ -170,6 +177,7 @@
     <Compile Include="UndoEvents\BindingAddUndoEvent.cs" />
     <Compile Include="UndoEvents\BindingDeleteUndoEvent.cs" />
     <Compile Include="UndoEvents\ControlAddUndoEvent.cs" />
+    <Compile Include="UndoEvents\ReparentControlUndoEvent.cs" />
     <Compile Include="UndoEvents\ControlDeleteUndoEvent.cs" />
     <Compile Include="UndoEvents\DeleteMonitorUndoEvent.cs" />
     <Compile Include="UndoEvents\DisplayOrderUndoItem.cs" />
@@ -179,6 +187,7 @@
     <Compile Include="ViewModel\DescriptorToolboxItem.cs" />
     <Compile Include="GlobalOptions.cs" />
     <Compile Include="ViewModel\MonitorResetItem.cs" />
+    <Compile Include="ViewModel\AlphabeticalTreeSort.cs" />
     <Compile Include="ViewModel\ProfileExplorerTreeItem.cs" />
     <Compile Include="ViewModel\ProfileExplorerTreeItemCollection.cs" />
     <Compile Include="ViewModel\ProfileExplorerTreeItemType.cs" />
@@ -275,6 +284,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="PropertyPanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FindReplace\FindResultsWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

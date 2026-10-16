@@ -34,6 +34,12 @@ namespace GadrocsWorkshop.Helios.ProfileEditor.PropertyEditors
         /// </summary>
         protected bool _loading;
 
+        /// <summary>
+        /// set while the Width and Height boxes are being updated from the control, so that is not
+        /// mistaken for the user typing a new size
+        /// </summary>
+        private bool _syncingSize;
+
         public LayoutPropertyEditor()
         {
             InitializeComponent();
@@ -94,6 +100,32 @@ namespace GadrocsWorkshop.Helios.ProfileEditor.PropertyEditors
             DependencyProperty.Register("NoEffects", typeof(Visibility), typeof(LayoutPropertyEditor),
                 new PropertyMetadata(null));
 
+        /// <summary>
+        /// width shown in the Width box; typing a new value resizes the control and scales its contents
+        /// </summary>
+        public double EditWidth
+        {
+            get => (double)GetValue(EditWidthProperty);
+            set => SetValue(EditWidthProperty, value);
+        }
+
+        public static readonly DependencyProperty EditWidthProperty =
+            DependencyProperty.Register("EditWidth", typeof(double), typeof(LayoutPropertyEditor),
+                new PropertyMetadata(0d));
+
+        /// <summary>
+        /// height shown in the Height box; typing a new value resizes the control and scales its contents
+        /// </summary>
+        public double EditHeight
+        {
+            get => (double)GetValue(EditHeightProperty);
+            set => SetValue(EditHeightProperty, value);
+        }
+
+        public static readonly DependencyProperty EditHeightProperty =
+            DependencyProperty.Register("EditHeight", typeof(double), typeof(LayoutPropertyEditor),
+                new PropertyMetadata(0d));
+
         #endregion
 
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
@@ -106,6 +138,15 @@ namespace GadrocsWorkshop.Helios.ProfileEditor.PropertyEditors
 
             if (e.Property == ControlProperty)
             {
+                if (e.OldValue is HeliosVisual oldControl)
+                {
+                    oldControl.Resized -= Control_Resized;
+                }
+                if (e.NewValue is HeliosVisual newControl)
+                {
+                    newControl.Resized += Control_Resized;
+                }
+
                 _loading = true;
                 try
                 {
@@ -115,6 +156,21 @@ namespace GadrocsWorkshop.Helios.ProfileEditor.PropertyEditors
                 finally
                 {
                     _loading = false;
+                }
+                SyncSize();
+            }
+
+            if (!_syncingSize && Control != null)
+            {
+                if (e.Property == EditWidthProperty)
+                {
+                    ProportionalResize.Resize(Control, EditWidth, null);
+                    SyncSize();
+                }
+                else if (e.Property == EditHeightProperty)
+                {
+                    ProportionalResize.Resize(Control, null, EditHeight);
+                    SyncSize();
                 }
             }
 
@@ -127,6 +183,26 @@ namespace GadrocsWorkshop.Helios.ProfileEditor.PropertyEditors
             }
 
             base.OnPropertyChanged(e);
+        }
+
+        private void Control_Resized(object sender, EventArgs e)
+        {
+            // dragged, undone, or changed by aspect lock: show the current size
+            SyncSize();
+        }
+
+        private void SyncSize()
+        {
+            _syncingSize = true;
+            try
+            {
+                EditWidth = Control?.Width ?? 0d;
+                EditHeight = Control?.Height ?? 0d;
+            }
+            finally
+            {
+                _syncingSize = false;
+            }
         }
 
         private void LoadControlTypeName()

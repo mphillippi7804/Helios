@@ -34,6 +34,26 @@ namespace GadrocsWorkshop.Helios.ProfileEditor.ViewModel
         Trigger =   0x040,
         Value =     0x080,
         Binding =   0x100,
-        Profile =   0x200
+        Profile =   0x200,
+
+        // the following are never item types; they only change how actions and triggers are arranged
+        // when included in the mask used to build a subtree
+
+        /// <summary>
+        /// put actions and triggers in "Input" and "Output" folders
+        /// </summary>
+        GroupInputOutput = 0x400,
+
+        /// <summary>
+        /// group actions and triggers by the name of the thing they control (for example "Hook Handle"),
+        /// with the "Input" and "Output" folders under that name instead of at the top
+        /// </summary>
+        GroupByElementName = 0x800,
+
+        /// <summary>
+        /// treat triggers as "Input" and actions as "Output" (the view of things available to bind);
+        /// without this, actions feeding the device are "Input" and its triggers are "Output"
+        /// </summary>
+        TriggersAreInput = 0x1000
     }
 }

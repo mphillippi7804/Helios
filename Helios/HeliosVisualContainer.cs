@@ -40,22 +40,23 @@ namespace GadrocsWorkshop.Helios
         {
             foreach (HeliosVisual visual in Children)
             {
-                if (visual.Left > 0)
+                // position scales with the container, including devices that hang off the left or top edge
+                visual.Left *= scaleX;
+                visual.Top *= scaleY;
+
+                // a device turned 90 degrees has its own width running along the container's height
+                double childScaleX = scaleX;
+                double childScaleY = scaleY;
+                if (visual.Rotation != HeliosVisualRotation.None && visual.Rotation != HeliosVisualRotation.ROT180)
                 {
-                    double locXDif = visual.Left;
-                    visual.Left += (locXDif * scaleX) - locXDif;
+                    childScaleX = scaleY;
+                    childScaleY = scaleX;
                 }
 
-                if (visual.Top > 0)
-                {
-                    double locYDif = visual.Top;
-                    visual.Top += (locYDif * scaleY) - locYDif;
-                }
+                visual.Width = Math.Max(visual.Width * childScaleX, 1d);
+                visual.Height = Math.Max(visual.Height * childScaleY, 1d);
 
-                visual.Width = Math.Max(visual.Width * scaleX, 1d);
-                visual.Height = Math.Max(visual.Height * scaleY, 1d);
-
-                visual.ScaleChildren(scaleX, scaleY);
+                visual.ScaleChildren(childScaleX, childScaleY);
             }
         }
 

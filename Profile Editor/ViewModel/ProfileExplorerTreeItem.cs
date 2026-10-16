@@ -456,12 +456,36 @@ namespace GadrocsWorkshop.Helios.ProfileEditor.ViewModel
 
         private void Triggers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            StructuredContentsChanged<IBindingTrigger>(e.OldItems, e.NewItems, GetDeviceNameForUserInterface, AddTrigger);
+            BindingElementsChanged<IBindingTrigger>(e.OldItems, e.NewItems, true, AddTrigger);
         }
 
         private void Actions_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            StructuredContentsChanged<IBindingAction>(e.OldItems, e.NewItems, GetDeviceNameForUserInterface, AddAction);
+            BindingElementsChanged<IBindingAction>(e.OldItems, e.NewItems, false, AddAction);
+        }
+
+        /// <summary>
+        /// keep the tree in step with actions or triggers being added to or removed from an object,
+        /// wherever in the folder structure they are shown
+        /// </summary>
+        private void BindingElementsChanged<TElement>(IEnumerable removedChildren, IEnumerable addedChildren, bool isTrigger,
+            Action<TElement, ProfileExplorerTreeItemType> addItemHandler) where TElement : IBindingElement
+        {
+            if (removedChildren != null)
+            {
+                foreach (TElement removed in removedChildren.OfType<TElement>())
+                {
+                    RemoveBindingElement(removed, isTrigger);
+                }
+            }
+
+            if (addedChildren != null)
+            {
+                foreach (TElement added in addedChildren.OfType<TElement>())
+                {
+                    addItemHandler(added, _includeTypes);
+                }
+            }
         }
 
         private void Binding_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -616,27 +640,114 @@ namespace GadrocsWorkshop.Helios.ProfileEditor.ViewModel
         {
             if (childItem.HasChildren || includeTypes.HasFlag(requiredFlags))
             {
-                string deviceName = GetDeviceNameForUserInterface(child);
-                if (deviceName.Length > 0)
+                // walk (and create as needed) the folders this item belongs in
+                ProfileExplorerTreeItem container = this;
+                foreach (string folderName in GetFolderPath(child, requiredFlags == ProfileExplorerTreeItemType.Trigger))
                 {
-                    if (!HasFolder(deviceName))
+                    ProfileExplorerTreeItem folder = container.GetFolder(folderName);
+                    if (folder == null)
                     {
-                        Children.Add(new ProfileExplorerTreeItem(deviceName, "", this, includeTypes));
+                        folder = new ProfileExplorerTreeItem(folderName, "", container, includeTypes);
+                        container.Children.Add(folder);
                     }
+                    container = folder;
+                }
 
-                    ProfileExplorerTreeItem deviceItem = GetFolder(deviceName);
-                    childItem.Parent = deviceItem;
-                    deviceItem.Children.Add(childItem);
-                }
-                else
-                {
-                    Children.Add(childItem);
-                }
+                childItem.Parent = container;
+                container.Children.Add(childItem);
             }
             else
             {
                 // let it die
                 childItem.Disconnect();
+            }
+        }
+
+        internal const string InputFolderName = "Input";
+        internal const string OutputFolderName = "Output";
+
+        /// <summary>
+        /// the folders, from this item down, that an action or trigger is shown in:
+        /// - by default only its device folder (if it has a device)
+        /// - with GroupInputOutput: "Input"/"Output", then the device folder
+        /// - with GroupByElementName as well: the device folder, then the element's name, then "Input"/"Output"
+        /// </summary>
+        private List<string> GetFolderPath(IBindingElement element, bool isTrigger)
+        {
+            List<string> path = new List<string>();
+            string deviceName = GetDeviceNameForUserInterface(element) ?? "";
+
+            string direction = null;
+            if (_includeTypes.HasFlag(ProfileExplorerTreeItemType.GroupInputOutput))
+            {
+                bool isInput = isTrigger == _includeTypes.HasFlag(ProfileExplorerTreeItemType.TriggersAreInput);
+                direction = isInput ? InputFolderName : OutputFolderName;
+            }
+
+            if (_includeTypes.HasFlag(ProfileExplorerTreeItemType.GroupByElementName))
+            {
+                if (deviceName.Length > 0)
+                {
+                    path.Add(deviceName);
+                }
+                if (!string.IsNullOrWhiteSpace(element.Name))
+                {
+                    path.Add(element.Name);
+                }
+                if (direction != null)
+                {
+                    path.Add(direction);
+                }
+            }
+            else
+            {
+                if (direction != null)
+                {
+                    path.Add(direction);
+                }
+                if (deviceName.Length > 0)
+                {
+                    path.Add(deviceName);
+                }
+            }
+            return path;
+        }
+
+        /// <summary>
+        /// remove the tree item for an action or trigger that went away, and any folders left empty
+        /// </summary>
+        private void RemoveBindingElement(IBindingElement element, bool isTrigger)
+        {
+            List<ProfileExplorerTreeItem> folders = new List<ProfileExplorerTreeItem>();
+            ProfileExplorerTreeItem container = this;
+            foreach (string folderName in GetFolderPath(element, isTrigger))
+            {
+                container = container.GetFolder(folderName);
+                if (container == null)
+                {
+                    // not shown
+                    return;
+                }
+                folders.Add(container);
+            }
+
+            ProfileExplorerTreeItem childItem = container.GetChildObject(element);
+            if (childItem == null)
+            {
+                return;
+            }
+            container.Children.Remove(childItem);
+            childItem.Disconnect();
+
+            // prune empty folders from the bottom up
+            for (int i = folders.Count - 1; i >= 0; i--)
+            {
+                if (folders[i].Children.Count > 0)
+                {
+                    break;
+                }
+                ProfileExplorerTreeItem parent = i == 0 ? this : folders[i - 1];
+                parent.Children.Remove(folders[i]);
             }
         }
 
