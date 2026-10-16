@@ -114,7 +114,8 @@ jobs:
                    "- $($name64): installer for 64-bit Windows (most PCs)`n" +
                    "- $($name32): installer for 32-bit Windows`n" +
                    "- $($nameZip): full source code with both installers in its Installers folder`n`n" +
-                   "Installs to the normal Helios folder and replaces an installed Helios with the same first three version numbers."
+                   "Installs to the normal Helios folder and replaces an installed Helios with the same first three version numbers." + "`n`n" +
+                   "Free software under the GNU General Public License v3 (see LICENSE.txt and NOTICE.txt). Modified version of Helios Virtual Cockpit; not an official Helios release."
           gh release create $tag (Join-Path $out $name64) (Join-Path $out $name32) (Join-Path $out $nameZip) `
             --repo "${{ github.repository }}" --target "${{ github.sha }}" `
             --title "Helios $v" --notes $notes

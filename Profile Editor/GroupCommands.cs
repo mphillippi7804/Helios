@@ -1,4 +1,4 @@
-﻿//  Copyright 2020 Helios Contributors
+﻿//  Copyright 2026 Helios Contributors (written by mphillippi7804 for a modified version of Helios)
 //
 //  Helios is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
