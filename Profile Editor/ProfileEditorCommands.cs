@@ -30,6 +30,8 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
         private static RoutedUICommand DistributeHorizontalCenterCommand = new RoutedUICommand("Distrubute Horizontal Center", "DistributeHorizontalCenter", typeof(ProfileEditorCommands));
         private static RoutedUICommand DistributeVerticalCenterCommand = new RoutedUICommand("Distrubute Vertical Center", "DistrubuteVerticalCenter", typeof(ProfileEditorCommands));
         private static RoutedUICommand SpaceHorizontalCommand = new RoutedUICommand("Evenly space horizontaly", "SpaceHorizontal", typeof(ProfileEditorCommands));
+        private static RoutedUICommand GroupCommand = new RoutedUICommand("Group", "Group", typeof(ProfileEditorCommands), new InputGestureCollection() { new KeyGesture(Key.G, ModifierKeys.Control) });
+        private static RoutedUICommand UngroupCommand = new RoutedUICommand("Ungroup", "Ungroup", typeof(ProfileEditorCommands), new InputGestureCollection() { new KeyGesture(Key.U, ModifierKeys.Control) });
         private static RoutedUICommand SpaceVerticalCommand = new RoutedUICommand("Evenlly space verticaly", "SpaceVertical", typeof(ProfileEditorCommands));
         private static RoutedUICommand SaveTemplateCommand = new RoutedUICommand("Save Current Item as a Template", "SaveTemplate", typeof(ProfileEditorCommands));
         private static RoutedUICommand OpenProfileItemCommand = new RoutedUICommand("Opens a document window to the given item.", "OpenProfileItem", typeof(ProfileEditorCommands));
@@ -52,6 +54,8 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
         public static RoutedUICommand DistributeVerticalCenter { get { return DistributeVerticalCenterCommand; } }
         public static RoutedUICommand SpaceHorizontal { get { return SpaceHorizontalCommand; } }
         public static RoutedUICommand SpaceVertical { get { return SpaceVerticalCommand; } }
+        public static RoutedUICommand Group { get { return GroupCommand; } }
+        public static RoutedUICommand Ungroup { get { return UngroupCommand; } }
         public static RoutedUICommand SaveTemplate { get { return SaveTemplateCommand; } }
         public static RoutedUICommand OpenProfileItem { get { return OpenProfileItemCommand; } }
         public static RoutedUICommand CloseProfileItem { get { return CloseProfileItemCommand; } }

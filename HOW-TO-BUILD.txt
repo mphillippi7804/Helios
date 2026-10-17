@@ -1,0 +1,76 @@
+Helios with selected Profile Editor improvements (.4 edition) - build and publish guide
+=================================================================
+Branch: helios-editor-lite on https://github.com/mphillippi7804/Helios
+Version: worked out automatically = official Helios version this source is based on + ".4"
+         (based on 1.6.6200.7 -> 1.6.6200.7.4; Windows shows the program version as 1.6.6200.74)
+Installs to the normal Helios folders and replaces an installed Helios 1.6.6200.x
+(including the .5 edition; only one of them can be installed at a time).
+Features: Find/Replace, image keeps object size, proportional resize, Group/Ungroup,
+Monitors listed alphabetically.
+
+ONE-TIME SETUP
+ 1. Install Git for Windows: https://git-scm.com/download/win (default options).
+ 2. Install Visual Studio 2022 Community: https://visualstudio.microsoft.com/
+      Workload: ".NET desktop development"
+      Individual components: ".NET Framework 4.7.2 targeting pack"
+ 3. In Visual Studio: Extensions > Manage Extensions > search "Microsoft Visual Studio Installer Projects 2022"
+    > Install, then close Visual Studio so it installs.
+ 4. Download nuget.exe from https://www.nuget.org/downloads and save it as C:\Tools\nuget.exe.
+    Add C:\Tools to PATH: Start > "Edit the system environment variables" > Environment Variables >
+    Path > Edit > New > C:\Tools > OK.
+ 5. Open "Developer Command Prompt for VS 2022" from the Start menu and run once:
+      cd /d "%DevEnvDir%CommonExtensions\Microsoft\VSI\DisableOutOfProcBuild"
+      DisableOutOfProcBuild.exe
+ 6. Allow long file paths (Helios has deep folders). In PowerShell "Run as administrator":
+      New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem -Name LongPathsEnabled -Value 1 -PropertyType DWORD -Force
+      git config --global core.longpaths true
+
+CLONE  (in "Developer Command Prompt for VS 2022")
+ 7. Pause OneDrive while building (OneDrive icon > Settings gear > Pause syncing > 24 hours);
+    a build creates thousands of files that OneDrive would otherwise try to upload.
+ 8.   cd /d "C:\Users\marka\OneDrive\Desktop"
+      git clone --branch helios-editor-lite --recurse-submodules https://github.com/mphillippi7804/Helios.git "Developer Edition"
+      cd "Developer Edition"
+      git fetch --tags https://github.com/HeliosVirtualCockpit/Helios.git
+
+BUILD THE INSTALLER  (same prompt, inside "Developer Edition")
+ 9.   nuget restore BuildMeFirst.sln
+      nuget restore "KeyPressReceiver/Keypress Receiver.csproj"
+      nuget restore Thirdparty/StreamDeckSharp/src/StreamDeckSharp/StreamDeckSharp.csproj
+      nuget restore Thirdparty/OpenMacroBoard.SDK/src/OpenMacroBoard.SDK/OpenMacroBoard.SDK.csproj
+      nuget restore Thirdparty/OpenMacroBoard.SDK/src/OpenMacroBoard.VirtualBoard/OpenMacroBoard.VirtualBoard.csproj
+      nuget restore Helios.sln
+10.   build.cmd auto
+    It prints "Building version 1.6.6200.7.4 (program version 1.6.6200.74)" and takes 10-30 minutes.
+    It must end with "Run End" and no "failed" lines. The installers are:
+      Helios Installer\Release\Helios.1.6.6200.7.4.msi        (64-bit, most PCs)
+      Helios Installer\Release32\Helios32bit.1.6.6200.7.4.msi (32-bit)
+11. Install: double-click the 64-bit .msi. It replaces an installed Helios 1.6.6200.x.
+
+POST IT ON GITHUB  (choose one)
+12a. Website: open https://github.com/mphillippi7804/Helios/releases/new
+      - Choose a tag: type  helios-1.6.6200.7.4  and click "Create new tag"
+      - Target: helios-editor-lite
+      - Release title: Helios 1.6.6200.7.4
+      - Drag in both .msi files from step 10, then "Publish release"
+     (if that tag already exists, open the existing release, click Edit, and replace the files)
+12b. Let GitHub build and post it for you instead of steps 9-11:
+      https://github.com/mphillippi7804/Helios/actions > "HeliosDev Build & Create MSI Files"
+      > Run workflow > Branch: helios-editor-lite > Run workflow.
+      About 25 minutes later the release "Helios <version>" appears on the Releases page
+      (an older release of the same version is replaced).
+
+SAVING YOUR OWN CODE CHANGES TO GITHUB
+13.   git add -A
+      git commit -m "describe the change"
+      git push
+    (the first push asks you to sign in to GitHub in a browser window)
+
+UPDATING TO A NEWER OFFICIAL HELIOS
+14.   git fetch --tags https://github.com/HeliosVirtualCockpit/Helios.git
+      git merge <new official version tag, e.g. 1.6.6200.8>
+      git push
+    The next build is automatically numbered <that version>.4, e.g. 1.6.6200.8.4.
+
+NOTE: an official Helios installer with the same first three numbers (e.g. 1.6.6200.8) will say a newer
+version is installed. Uninstall this one in Settings > Apps first, or build 1.6.6200.8.4 instead (step 14).

@@ -1,7 +1,18 @@
 @echo Run Start: %date% %time%
 @echo off
+set HELIOS_FILE_VERSION=
+set HELIOS_REPLACE_SAME_VERSION=
 if "%1" == "test" (
 	set HELIOS_BUILT_VERSION=1.6.1000.0
+) else if "%1" == "auto" (
+	REM version = official Helios release this source is based on + ".4", worked out by EditionVersion.ps1
+	REM e.g. based on 1.6.6200.7: files and installers are named 1.6.6200.7.4, program version is 1.6.6200.74
+	for /f "usebackq tokens=1,2" %%a in (`powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0EditionVersion.ps1"`) do (
+		set HELIOS_BUILT_VERSION=%%a
+		set HELIOS_FILE_VERSION=%%b
+	)
+	REM this build replaces an installed official Helios with the same first three version numbers
+	set HELIOS_REPLACE_SAME_VERSION=1
 ) else (
 	set HELIOS_BUILT_VERSION=%1
 	REM make sure clean working directory
@@ -42,6 +53,14 @@ if "%1" == "test" (
 		exit /b 2
 	)
 )
+
+if "%HELIOS_BUILT_VERSION%" == "" (
+	echo Could not determine the version to build.  Use "build.cmd auto", "build.cmd test" or "build.cmd <version>".
+	echo Run End: %date% %time%
+	exit /b 1
+)
+if "%HELIOS_FILE_VERSION%" == "" set HELIOS_FILE_VERSION=%HELIOS_BUILT_VERSION%
+echo Building version %HELIOS_FILE_VERSION% (program version %HELIOS_BUILT_VERSION%)
 
 REM check for error exit from if scope
 if ERRORLEVEL 2 (
@@ -94,19 +113,19 @@ REM modify installer projects to use correct version number in msi names that ge
 echo backing up "Helios Installer\Helios Installer.vdproj" to "Helios Installer\Helios Installer.vdproj.bak" 
 move "Helios Installer\Helios Installer.vdproj" "Helios Installer\Helios Installer.vdproj.bak"
 echo generating modified "Helios Installer\Helios Installer.vdproj" 
-powershell -Command "(gc 'Helios Installer\Helios Installer.vdproj.bak') -replace '1\.6\.1000\.0\.msi', '%HELIOS_BUILT_VERSION%.msi' | Set-Content 'Helios Installer\Helios Installer.vdproj'"
+powershell -Command "(gc 'Helios Installer\Helios Installer.vdproj.bak') -replace '1\.6\.1000\.0\.msi', '%HELIOS_FILE_VERSION%.msi' | Set-Content 'Helios Installer\Helios Installer.vdproj'"
 echo backing up "Helios Installer\Helios32bit Installer.vdproj" to "Helios Installer\Helios32bit Installer.vdproj.bak" 
 move "Helios Installer\Helios32bit Installer.vdproj" "Helios Installer\Helios32bit Installer.vdproj.bak"
 echo generating modified "Helios Installer\Helios32bit Installer.vdproj" 
-powershell -Command "(gc 'Helios Installer\Helios32bit Installer.vdproj.bak') -replace '1\.6\.1000\.0\.msi', '%HELIOS_BUILT_VERSION%.msi' | Set-Content 'Helios Installer\Helios32bit Installer.vdproj'"
+powershell -Command "(gc 'Helios Installer\Helios32bit Installer.vdproj.bak') -replace '1\.6\.1000\.0\.msi', '%HELIOS_FILE_VERSION%.msi' | Set-Content 'Helios Installer\Helios32bit Installer.vdproj'"
 echo backing up "Keypress Receiver Installer\Keypress Receiver Installer.vdproj" to "Keypress Receiver Installer\Keypress Receiver Installer.vdproj.bak" 
 move "Keypress Receiver Installer\Keypress Receiver Installer.vdproj" "Keypress Receiver Installer\Keypress Receiver Installer.vdproj.bak"
 echo generating modified "Keypress Receiver Installer\Keypress Receiver Installer.vdproj" 
-powershell -Command "(gc 'Keypress Receiver Installer\Keypress Receiver Installer.vdproj.bak') -replace '1\.6\.1000\.0\.msi', '%HELIOS_BUILT_VERSION%.msi' | Set-Content 'Keypress Receiver Installer\Keypress Receiver Installer.vdproj'"
+powershell -Command "(gc 'Keypress Receiver Installer\Keypress Receiver Installer.vdproj.bak') -replace '1\.6\.1000\.0\.msi', '%HELIOS_FILE_VERSION%.msi' | Set-Content 'Keypress Receiver Installer\Keypress Receiver Installer.vdproj'"
 echo backing up "Tools Installer\Tools Installer.vdproj" to "Tools Installer\Tools Installer.vdproj.bak" 
 move "Tools Installer\Tools Installer.vdproj" "Tools Installer\Tools Installer.vdproj.bak"
 echo generating modified "Tools Installer\Tools Installer.vdproj" 
-powershell -Command "(gc 'Tools Installer\Tools Installer.vdproj.bak') -replace '1\.6\.1000\.0\.msi', '%HELIOS_BUILT_VERSION%.msi' | Set-Content 'Tools Installer\Tools Installer.vdproj'"
+powershell -Command "(gc 'Tools Installer\Tools Installer.vdproj.bak') -replace '1\.6\.1000\.0\.msi', '%HELIOS_FILE_VERSION%.msi' | Set-Content 'Tools Installer\Tools Installer.vdproj'"
 
 REM build installers; this requires https://stackoverflow.com/questions/8648428/an-error-occurred-while-validating-hresult-8000000a/45580775#45580775
 echo building 64-bit installers
@@ -140,13 +159,13 @@ if "%HELIOS_BUILD_FAILED%" == "true" (
 
 REM fix up setup loaders
 echo renaming setup executables
-move "Helios Installer\Release\setup.exe" "Helios Installer\Release\Helios.%HELIOS_BUILT_VERSION%.Setup.exe"
-move "Helios Installer\Release32\setup.exe" "Helios Installer\Release32\Helios32bit.%HELIOS_BUILT_VERSION%.Setup.exe"
-move "Keypress Receiver Installer\Release\setup.exe" "Keypress Receiver Installer\Release\Helios Keypress Receiver.%HELIOS_BUILT_VERSION%.Setup.exe"
+move "Helios Installer\Release\setup.exe" "Helios Installer\Release\Helios.%HELIOS_FILE_VERSION%.Setup.exe"
+move "Helios Installer\Release32\setup.exe" "Helios Installer\Release32\Helios32bit.%HELIOS_FILE_VERSION%.Setup.exe"
+move "Keypress Receiver Installer\Release\setup.exe" "Keypress Receiver Installer\Release\Helios Keypress Receiver.%HELIOS_FILE_VERSION%.Setup.exe"
 
 REM fix up installers
 pushd "Helios Installer\Release"
-cscript //nologo ..\HeliosInstallAdjustments.vbs "Helios.%HELIOS_BUILT_VERSION%.msi" %HELIOS_BUILT_VERSION%
+cscript //nologo ..\HeliosInstallAdjustments.vbs "Helios.%HELIOS_FILE_VERSION%.msi" %HELIOS_BUILT_VERSION%
 if %errorlevel% neq 0 (
 	echo Installer fixup script failed to fix up 64-bit Helios installer.  Already built installers will be deleted.
 	popd
@@ -154,7 +173,7 @@ if %errorlevel% neq 0 (
 )
 popd
 pushd "Helios Installer\Release32"
-cscript //nologo ..\HeliosInstallAdjustments.vbs "Helios32bit.%HELIOS_BUILT_VERSION%.msi" %HELIOS_BUILT_VERSION%
+cscript //nologo ..\HeliosInstallAdjustments.vbs "Helios32bit.%HELIOS_FILE_VERSION%.msi" %HELIOS_BUILT_VERSION%
 if %errorlevel% neq 0 (
 	echo Installer fixup script failed to fix up 32-bit Helios installer.  Already built installers will be deleted.
 	popd
@@ -162,7 +181,7 @@ if %errorlevel% neq 0 (
 )
 popd
 pushd "Keypress Receiver Installer\Release"
-cscript //nologo "..\..\Helios Installer\HeliosInstallAdjustments.vbs" "Helios Keypress Receiver.%HELIOS_BUILT_VERSION%.msi" %HELIOS_BUILT_VERSION%
+cscript //nologo "..\..\Helios Installer\HeliosInstallAdjustments.vbs" "Helios Keypress Receiver.%HELIOS_FILE_VERSION%.msi" %HELIOS_BUILT_VERSION%
 if %errorlevel% neq 0 (
 	echo Installer fixup script failed to fix up 64-bit Keypress Receiver installer.  Already built installers will be deleted.
 	popd
@@ -170,7 +189,7 @@ if %errorlevel% neq 0 (
 )
 popd
 pushd "Tools Installer\Release"
-cscript //nologo "..\..\Helios Installer\HeliosInstallAdjustments.vbs" "Helios Developer Tools.%HELIOS_BUILT_VERSION%.msi" %HELIOS_BUILT_VERSION%
+cscript //nologo "..\..\Helios Installer\HeliosInstallAdjustments.vbs" "Helios Developer Tools.%HELIOS_FILE_VERSION%.msi" %HELIOS_BUILT_VERSION%
 if %errorlevel% neq 0 (
 	echo Installer fixup script failed to fix up 64-bit Developer Tools installer.  Already built installers will be deleted.
 	popd

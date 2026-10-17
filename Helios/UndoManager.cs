@@ -63,6 +63,12 @@ namespace GadrocsWorkshop.Helios
         public bool CanRedo => _redoEvents.Count > 0 && !Working && _batch == null;
 
         /// <summary>
+        /// Gets a value indicating whether a batch is currently open, so callers that want to group
+        /// several changes into one undo step know whether they need to open (and close) their own.
+        /// </summary>
+        public bool InBatch => _batch != null;
+
+        /// <summary>
         /// Rollback the last command.
         /// </summary>
         public void Undo()

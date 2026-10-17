@@ -94,6 +94,9 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
             item.ExpandAll();
             ProfileExplorerItems = item.Children;
 
+            // monitors and panels listed alphabetically (display only; the profile's own order is unchanged)
+            AlphabeticalTreeSort.AttachMonitors(item);
+
             ButtonItemExpand.IsEnabled = false;
             ButtonItemCollapse.IsEnabled = false;
             ButtonBranchExpand.IsEnabled = false;

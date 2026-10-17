@@ -210,8 +210,11 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
                     {
                         Logger.Debug("loading actions for bindings");
                         _actionsList = new ProfileExplorerTreeItem(newProfile, actionTypes);
+                        // monitors, panels and their devices listed alphabetically
+                        AlphabeticalTreeSort.AttachMonitors(_actionsList);
                         Logger.Debug("loading triggers for bindings");
                         _triggerList = new ProfileExplorerTreeItem(newProfile, triggerTypes);
+                        AlphabeticalTreeSort.AttachMonitors(_triggerList);
                     }
                     _actionTriggerProfile = newProfile;
                 }

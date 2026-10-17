@@ -143,16 +143,54 @@ namespace GadrocsWorkshop.Helios.Controls
                     }
                     else
                     {
+                        // when an existing image is replaced in the Profile Editor, keep the control's size and scale the
+                        // new image to fit it; the first image a control receives (new control, profile load, template)
+                        // still sizes the control, and outside the editor (Control Center) behavior is unchanged
                         image = ConfigManager.ImageManager.LoadImage(_imageFile);
-                        if (image != null)
+                        if (image != null && (string.IsNullOrEmpty(oldValue) || !DesignMode))
                         {
                             Width = image.Width;
                             Height = image.Height;
                         }
                     }
 
-                    OnPropertyChanged("Image", oldValue, value, true);
+                    NotifyImageChanged(oldValue, value);
                     Refresh();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Report the image change.  A centered image is drawn at its own size, so when an existing image is
+        /// replaced, alignment switches to stretched so the new image scales to the size of the control.
+        /// Both changes are one undo step.
+        /// </summary>
+        private void NotifyImageChanged(string oldValue, string newValue)
+        {
+            UndoManager undo = ConfigManager.UndoManager;
+            bool switchAlignment = !string.IsNullOrEmpty(oldValue)
+                                   && !string.IsNullOrEmpty(newValue)
+                                   && _alignment == ImageAlignment.Centered
+                                   && DesignMode
+                                   && !(undo?.Working ?? false);
+            bool ownBatch = switchAlignment && undo != null && !undo.InBatch;
+            if (ownBatch)
+            {
+                undo.StartBatch();
+            }
+            try
+            {
+                OnPropertyChanged("Image", oldValue, newValue, true);
+                if (switchAlignment)
+                {
+                    Alignment = ImageAlignment.Stretched;
+                }
+            }
+            finally
+            {
+                if (ownBatch)
+                {
+                    undo.CloseBatch();
                 }
             }
         }

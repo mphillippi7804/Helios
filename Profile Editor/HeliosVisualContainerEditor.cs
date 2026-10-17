@@ -85,6 +85,9 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
             CommandManager.RegisterClassCommandBinding(ownerType, new CommandBinding(ProfileEditorCommands.SpaceHorizontal, SpaceHorizontal_Executed, Distribute_CanExecute));
             CommandManager.RegisterClassCommandBinding(ownerType, new CommandBinding(ProfileEditorCommands.SpaceVertical, SpaceVertical_Executed, Distribute_CanExecute));
 
+            CommandManager.RegisterClassCommandBinding(ownerType, new CommandBinding(ProfileEditorCommands.Group, Group_Executed, Group_CanExecute));
+            CommandManager.RegisterClassCommandBinding(ownerType, new CommandBinding(ProfileEditorCommands.Ungroup, Ungroup_Executed, Ungroup_CanExecute));
+
             CommandManager.RegisterClassCommandBinding(ownerType, new CommandBinding(ProfileEditorCommands.SaveTemplate, SaveTemplate_Executed, SaveTemplate_CanExecute));
 
             CommandManager.RegisterClassCommandBinding(ownerType, new CommandBinding(ApplicationCommands.Copy, Copy_Executed, Copy_CanExecute));
@@ -789,6 +792,26 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
         {
             HeliosVisualContainerEditor editor = target as HeliosVisualContainerEditor;
             e.CanExecute = editor != null && editor.SelectedItems != null && editor.SelectedItems.Count > 2;
+        }
+
+        private static void Group_CanExecute(object target, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = GroupCommands.CanGroup(target as HeliosVisualContainerEditor);
+        }
+
+        private static void Group_Executed(object target, ExecutedRoutedEventArgs e)
+        {
+            GroupCommands.Group(target as HeliosVisualContainerEditor);
+        }
+
+        private static void Ungroup_CanExecute(object target, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = GroupCommands.CanUngroup(target as HeliosVisualContainerEditor);
+        }
+
+        private static void Ungroup_Executed(object target, ExecutedRoutedEventArgs e)
+        {
+            GroupCommands.Ungroup(target as HeliosVisualContainerEditor);
         }
 
         private static void Delete_Executed(object target, ExecutedRoutedEventArgs e)

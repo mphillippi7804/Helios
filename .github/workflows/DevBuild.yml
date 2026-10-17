@@ -1,20 +1,24 @@
-name: HeliosDev Build & Create MSI Files
-# This workflow is intended to produce a new Helios build for testing (ie 1.6.1000.0). 
-# On successful build and packaging, the files are made available as assets
-# 
-# This workflow requires strict adherence to the Helios Tag and Branch naming
-# conventions.
+name: Helios Build (.4 edition, selected Profile Editor improvements) & Publish Release
+# Builds this branch on GitHub and publishes the result as a Release:
+#   - version = the official Helios version this source is based on, plus ".4" (e.g. 1.6.6200.7.4),
+#     worked out automatically by EditionVersion.ps1
+#   - 64-bit and 32-bit installers, plus a zip of the full source with both installers in it
+# The installers use the normal Helios folders and replace an installed Helios with the same
+# first three version numbers.
 
-# Controls when the workflow will run
 on:
-  # Allows you to run this workflow manually from the Actions tab
+  # run manually from the Actions tab
   workflow_dispatch:
-  
-jobs:  
-  build:    
+
+# needed to publish the installers as a GitHub Release
+permissions:
+  contents: write
+
+jobs:
+  build:
     runs-on: windows-latest
-   
-    steps:      
+
+    steps:
       - name: Checkout repository and submodules
         uses: actions/checkout@v4
         with:
@@ -22,14 +26,30 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
 
+      - name: Stage clean source for the download package
+        # copy every tracked file (including submodules) before the build creates or changes anything
+        shell: cmd
+        run: |
+          git -c core.quotepath=off ls-files --recurse-submodules > "%RUNNER_TEMP%\source-files.txt"
+          tar -c -f "%RUNNER_TEMP%\source.tar" -T "%RUNNER_TEMP%\source-files.txt"
+          mkdir "%RUNNER_TEMP%\package\Helios"
+          tar -x -f "%RUNNER_TEMP%\source.tar" -C "%RUNNER_TEMP%\package\Helios"
+
+      - name: Choose version number
+        # official Helios version this source is based on, plus ".4"; see EditionVersion.ps1
+        shell: pwsh
+        run: |
+          $line = & ./EditionVersion.ps1
+          $parts = "$line".Trim().Split(' ')
+          if ($parts.Count -ne 2) { throw "Could not determine the version (got '$line')." }
+          echo "HELIOS_VERSION=$($parts[1])" >> $env:GITHUB_ENV
+          echo "Building Helios $($parts[1]) (program version $($parts[0]))"
+
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
       - name: Setup VS Dev Environment
         uses: seanmiddleditch/gha-setup-vsdevenv@v5
-        
-      - name: Navigate to Workspace
-        run: cd $GITHUB_WORKSPACE
 
       - name: Disable Out of Process Building
         run: .\DisableOutOfProcBuild.exe
@@ -37,9 +57,8 @@ jobs:
 
       - uses: nuget/setup-nuget@v1
         with:
-          nuget-api-key: ${{ secrets.NuGetAPIKey }}
           nuget-version: '5.x'
-          
+
       - name: NuGet Restore
         run: |
           nuget restore BuildMeFirst.sln
@@ -48,57 +67,56 @@ jobs:
           nuget restore Thirdparty/OpenMacroBoard.SDK/src/OpenMacroBoard.SDK/OpenMacroBoard.SDK.csproj
           nuget restore Thirdparty/OpenMacroBoard.SDK/src/OpenMacroBoard.VirtualBoard/OpenMacroBoard.VirtualBoard.csproj
           nuget restore Helios.sln
-        
-      - name: Clean and Build x86 and x64 Solutions
-        continue-on-error: true
+
+      - name: Build solutions and installers
         shell: cmd
-        run: |
-          build.cmd test
-          echo "rc=%errorlevel%" >> $env:GITHUB_ENV
+        run: build.cmd auto
 
-      - name: zip up build logs
+      - name: Upload build logs
+        if: always()
         continue-on-error: true
-        run: |
-          mkdir ./Assets
-          tar -a -c -f "BuildLogs.zip" -C "." *.binlog
-
-      - name: Upload Build Logs
         uses: actions/upload-artifact@v4
         with:
           name: Build Logs
-          path: "./BuildLogs.zip"
+          path: "*.binlog"
           retention-days: 5
 
-      - name: Force Error if there was a Previous Error
-        # This is a delayed exit because we needed to make the build logs available before leaving
-        if: ${{ env.rc != 0 }}
+      - name: Publish installers as a GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
         run: |
-          ForceExit   #  This should always cause an error because the program will not be found.  The real error is going to be on the Clean & Build step above.
+          $v = $env:HELIOS_VERSION
+          $msi64 = Get-Item "Helios Installer/Release/Helios.$v.msi" -ErrorAction SilentlyContinue
+          $msi32 = Get-Item "Helios Installer/Release32/Helios32bit.$v.msi" -ErrorAction SilentlyContinue
+          if (-not $msi64 -or -not $msi32) { throw "Installers for $v were not built, nothing to publish." }
 
-      - name: zip up the msi
-        continue-on-error: true
-        run: |
-          tar -a -c -f "./Assets/HeliosDev_Installers.zip" -C "Helios Installer\Release" *.msi -C "../../Keypress Receiver Installer/Release" *.msi -C "../../Tools Installer/Release" *.msi
-          tar -a -c -f "./Assets/HeliosDev32Bit_Installers.zip" -C "Helios Installer/Release32" *.msi
-          tar -a -c -f "./Assets/HeliosDev_StreamDeck_Alpha.zip" -C "bin/x64/Release" Plugins/OpenMacroBoard.SDK.dll Plugins/OpenMacroBoard.VirtualBoard.dll Plugins/StreamDeckSharp.dll Plugins/HeliosMacroBoard.dll
-    
-      - name: Upload Helios_Installers 1
-        uses: actions/upload-artifact@v4
-        with:
-          name: Helios ${{ env.NewTag }} Release Candidate 64Bit Installers
-          path: "./Assets/HeliosDev_Installers.zip"
-          retention-days: 2
-          
-      - name: Upload Helios_Installers 2
-        uses: actions/upload-artifact@v4
-        with:
-          name: Helios ${{ env.NewTag }} Release Candidate 32Bit Installers
-          path: "./Assets/HeliosDev32Bit_Installers.zip"
-          retention-days: 2
-          
-      - name: Upload Helios_Installers 3
-        uses: actions/upload-artifact@v4
-        with:
-          name: Helios ${{ env.NewTag }} Release Candidate Stream Deck Installer
-          path: "./Assets/HeliosDev_StreamDeck_Alpha.zip"
-          retention-days: 2   
+          $out = Join-Path $env:RUNNER_TEMP "release"
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          $name64 = "Helios.$v.64bit.msi"
+          $name32 = "Helios.$v.32bit.msi"
+          $nameZip = "Helios.$v.source-and-installers.zip"
+          Copy-Item $msi64.FullName (Join-Path $out $name64)
+          Copy-Item $msi32.FullName (Join-Path $out $name32)
+
+          $inst = Join-Path $env:RUNNER_TEMP "package/Helios/Installers"
+          New-Item -ItemType Directory -Force -Path $inst | Out-Null
+          Copy-Item (Join-Path $out $name64) $inst
+          Copy-Item (Join-Path $out $name32) $inst
+          tar -a -c -f (Join-Path $out $nameZip) -C (Join-Path $env:RUNNER_TEMP "package") "Helios"
+
+          $tag = "helios-$v"
+          # rebuilding the same version replaces its earlier release
+          gh release delete $tag --repo "${{ github.repository }}" --yes --cleanup-tag 2>$null
+          $global:LASTEXITCODE = 0
+
+          $notes = "Helios $v (official Helios with Find/Replace, image size kept, proportional resize, Group/Ungroup and alphabetical Monitors), built from commit ${{ github.sha }} on branch ${{ github.ref_name }}.`n`n" +
+                   "- $($name64): installer for 64-bit Windows (most PCs)`n" +
+                   "- $($name32): installer for 32-bit Windows`n" +
+                   "- $($nameZip): full source code with both installers in its Installers folder`n`n" +
+                   "Installs to the normal Helios folder and replaces an installed Helios with the same first three version numbers." + "`n`n" +
+                   "Free software under the GNU General Public License v3 (see LICENSE.txt and NOTICE.txt). Modified version of Helios Virtual Cockpit; not an official Helios release."
+          gh release create $tag (Join-Path $out $name64) (Join-Path $out $name32) (Join-Path $out $nameZip) `
+            --repo "${{ github.repository }}" --target "${{ github.sha }}" `
+            --title "Helios $v" --notes $notes
+          if ($LASTEXITCODE -ne 0) { throw "Publishing the release failed." }

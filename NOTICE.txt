@@ -1,0 +1,33 @@
+NOTICE - modified version of Helios
+===================================
+
+This program is a MODIFIED VERSION of Helios Virtual Cockpit
+  Original:  https://github.com/HeliosVirtualCockpit/Helios
+  Copyright (c) 2014 Craig Courtney, 2020-2026 Helios Contributors
+
+Modified by GitHub user mphillippi7804, October 2026.
+  Source of this version:  https://github.com/mphillippi7804/Helios  (branch helios-editor-lite)
+  Each published installer has a matching "source-and-installers" zip on the Releases page:
+  https://github.com/mphillippi7804/Helios/releases
+
+This version keeps the normal Helios names and install folders.
+
+Changes made (relative to official Helios 1.6.6200.7) - Helios 1.6.6200.7.4, smaller feature set:
+  - Profile Editor: Find All / Replace with results window (Go To, Replace, Replace All)
+  - Replacing an object's image keeps the object's size (in the editor)
+  - Typing a Width/Height scales a panel's contents proportionally; rotated children scale correctly
+  - Group (Ctrl+G) and Ungroup (Ctrl+U)
+  - Monitors, panels and their devices listed alphabetically in the Profile Explorer and Bindings panel
+  - Build: automatic version numbering (official version + ".4") and GitHub release publishing
+  (The full feature set is Helios <version>.5 on the helios-editor branch.)
+
+LICENSE
+  This program is free software: you can redistribute it and/or modify it under the terms of the
+  GNU General Public License as published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.  See LICENSE.txt for the full license text.
+
+  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+  even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+
+  It is not an official Helios release and is not endorsed by the Helios Virtual Cockpit project.
