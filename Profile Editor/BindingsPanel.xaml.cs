@@ -20,6 +20,7 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
     using GadrocsWorkshop.Helios.ProfileEditor.ViewModel;
     using GadrocsWorkshop.Helios.Windows.Controls;
     using System;
+    using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Data;
@@ -172,6 +173,8 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
                 {
                     foreach (ProfileExplorerTreeItem item in bindings.Children)
                     {
+                        // show everything for the selected device: Input/Output, its actions and triggers, and their bindings
+                        item.ExpandAll();
                         BindingItems.Add(item);
                     }
                 }
@@ -265,6 +268,10 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
         private void BindingsTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             ProfileExplorerTreeItem selectedItem = e.NewValue as ProfileExplorerTreeItem;
+
+            // selecting an entry opens everything beneath it
+            selectedItem?.ExpandAll();
+
             if (selectedItem != null && selectedItem.ItemType.HasFlag(ProfileExplorerTreeItemType.Binding))
             {
                 SelectedBinding = (HeliosBinding)selectedItem.ContextItem;
@@ -275,6 +282,41 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
                 SelectedBinding = null;
             }
         }
+
+        /// <summary>
+        /// Actions & Triggers list: everything starts collapsed; opening a device opens its "Input" and "Output"
+        /// groups (and the name groups that hold them), so its actions and triggers are visible straight away.
+        /// Opening an interface, monitor or panel still only shows its devices, collapsed.
+        /// </summary>
+        private void SourceTree_ItemExpanded(object sender, RoutedEventArgs e)
+        {
+            if (!((e.OriginalSource as TreeViewItem)?.DataContext is ProfileExplorerTreeItem expanded))
+            {
+                return;
+            }
+
+            foreach (ProfileExplorerTreeItem child in expanded.Children)
+            {
+                if (IsInputOutputFolder(child))
+                {
+                    // opened a name group (e.g. "Hook Handle"): show its Input and Output
+                    child.IsExpanded = true;
+                }
+                else if (child.ItemType == ProfileExplorerTreeItemType.Folder && child.Children.Any(IsInputOutputFolder))
+                {
+                    // opened a device: show each of its name groups with their Input and Output
+                    child.IsExpanded = true;
+                    foreach (ProfileExplorerTreeItem direction in child.Children.Where(IsInputOutputFolder))
+                    {
+                        direction.IsExpanded = true;
+                    }
+                }
+            }
+        }
+
+        private static bool IsInputOutputFolder(ProfileExplorerTreeItem item) =>
+            item.ItemType == ProfileExplorerTreeItemType.Folder &&
+            (item.Name == ProfileExplorerTreeItem.InputFolderName || item.Name == ProfileExplorerTreeItem.OutputFolderName);
 
         private void ValueSource_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
