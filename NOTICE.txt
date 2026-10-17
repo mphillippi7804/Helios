@@ -10,8 +10,7 @@ Modified by GitHub user mphillippi7804, October 2026.
   Each published installer has a matching "source-and-installers" zip on the Releases page:
   https://github.com/mphillippi7804/Helios/releases
 
-This version is installed as "Helios Dev Custom" in Program Files\Helios Virtual Cockpit\Helios Dev Custom;
-documents, settings and profiles use the normal Helios folders. It replaces, and can be replaced by, regular Helios.
+This version keeps the normal Helios names and install folders.
 
 Changes made (relative to official Helios 1.6.6200.7):
   - Profile Editor: Find All / Replace with results window (Go To, Replace, Replace All)
@@ -22,7 +21,6 @@ Changes made (relative to official Helios 1.6.6200.7):
   - Profile Explorer and Bindings panel listed alphabetically
   - Bindings panel: Input and Output combined; grouped into "Input"/"Output" folders and by name
   - Build: automatic version numbering and GitHub release publishing
-  - Installer: named "Helios Dev Custom", installed in its own folder with its own shortcut names
 
 LICENSE
   This program is free software: you can redistribute it and/or modify it under the terms of the

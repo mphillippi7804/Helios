@@ -34,12 +34,7 @@ else
    Dim session : Set session = installer.OpenPackage(database,1) : If Err <> 0 Then Fail "Installer: '" & msiPackage & "' has invalid installer package format"
 
    ' check product (this script is shared)
-   Dim isDevCustom:isDevCustom = (session.Property("ProductName") = "Helios Dev Custom")
-   if isDevCustom then
-        ' Helios Dev Custom shares the regular Helios upgrade code: either installer replaces the other
-        Wscript.Echo "configuring Helios Dev Custom"
-        upgradeCode = heliosUpgrade
-   elseif session.Property("ProductName") = "Helios Keypress Receiver" then
+   if session.Property("ProductName") = "Helios Keypress Receiver" then
         Wscript.Echo "configuring Helios Keypress Receiver Installer"
         upgradeCode = keypressUpgrade
    elseif session.Property("ProductName") = "Helios Developer Tools" then
@@ -60,7 +55,7 @@ else
    ' run custom actions as user instead of system
    Execute database, "UPDATE CustomAction SET `Type` = 1025 WHERE `Type` = 3073"
 
-   if session.Property("ProductName") = "Helios" or isDevCustom then
+   if session.Property("ProductName") = "Helios" then
 		if not RemoveProblemComponent( database, "PATCHING.DLL|patching.dll") then 
             ' if lowercase was not found then try mixed case
             if not RemoveProblemComponent( database, "PATCHING.DLL|Patching.dll") then

@@ -110,13 +110,13 @@ jobs:
           gh release delete $tag --repo "${{ github.repository }}" --yes --cleanup-tag 2>$null
           $global:LASTEXITCODE = 0
 
-          $notes = "Helios Dev Custom $v (official Helios with Profile Editor improvements), built from commit ${{ github.sha }} on branch ${{ github.ref_name }}.`n`n" +
+          $notes = "Helios $v (official Helios with Profile Editor improvements), built from commit ${{ github.sha }} on branch ${{ github.ref_name }}.`n`n" +
                    "- $($name64): installer for 64-bit Windows (most PCs)`n" +
                    "- $($name32): installer for 32-bit Windows`n" +
                    "- $($nameZip): full source code with both installers in its Installers folder`n`n" +
-                   "Installs as Helios Dev Custom in Program Files\Helios Virtual Cockpit\Helios Dev Custom. It replaces an installed regular Helios, and a regular Helios installer replaces it." + "`n`n" +
+                   "Installs to the normal Helios folder and replaces an installed Helios with the same first three version numbers." + "`n`n" +
                    "Free software under the GNU General Public License v3 (see LICENSE.txt and NOTICE.txt). Modified version of Helios Virtual Cockpit; not an official Helios release."
           gh release create $tag (Join-Path $out $name64) (Join-Path $out $name32) (Join-Path $out $nameZip) `
             --repo "${{ github.repository }}" --target "${{ github.sha }}" `
-            --title "Helios Dev Custom $v" --notes $notes
+            --title "Helios $v" --notes $notes
           if ($LASTEXITCODE -ne 0) { throw "Publishing the release failed." }
