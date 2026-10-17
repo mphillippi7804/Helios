@@ -25,6 +25,11 @@ else
    Dim toolsUpgrade:toolsUpgrade = "{1A6DEA70-100A-4C3B-A9D9-64340BEAC520}"
    Dim upgradeCode:upgradeCode = heliosUpgrade
    
+   ' upgrade code for Helios Dev Custom, installed in Program Files\Helios Virtual Cockpit\Helios Dev Custom
+   ' (must match UpgradeCode in the Helios installer projects).  Because it differs from regular Helios,
+   ' the regular Helios installer never upgrades or removes it; only Helios Dev Custom installers do.
+   Dim heliosDevCustomUpgrade:heliosDevCustomUpgrade = "{27158E45-C08C-42E4-AD7A-473D0E2AD3A1}"
+
    ' upgrade code for Helios Development Prototypes
    Dim heliosDevUpgrade:heliosDevUpgrade = "{BA7FFC56-BDB7-4B02-8A12-089A630CCF96}"
 
@@ -34,7 +39,11 @@ else
    Dim session : Set session = installer.OpenPackage(database,1) : If Err <> 0 Then Fail "Installer: '" & msiPackage & "' has invalid installer package format"
 
    ' check product (this script is shared)
-   if session.Property("ProductName") = "Helios Keypress Receiver" then
+   Dim isDevCustom:isDevCustom = (session.Property("ProductName") = "Helios Dev Custom")
+   if isDevCustom then
+        Wscript.Echo "configuring Helios Dev Custom"
+        upgradeCode = heliosDevCustomUpgrade
+   elseif session.Property("ProductName") = "Helios Keypress Receiver" then
         Wscript.Echo "configuring Helios Keypress Receiver Installer"
         upgradeCode = keypressUpgrade
    elseif session.Property("ProductName") = "Helios Developer Tools" then
@@ -55,7 +64,7 @@ else
    ' run custom actions as user instead of system
    Execute database, "UPDATE CustomAction SET `Type` = 1025 WHERE `Type` = 3073"
 
-   if session.Property("ProductName") = "Helios" then
+   if session.Property("ProductName") = "Helios" or isDevCustom then
 		if not RemoveProblemComponent( database, "PATCHING.DLL|patching.dll") then 
             ' if lowercase was not found then try mixed case
             if not RemoveProblemComponent( database, "PATCHING.DLL|Patching.dll") then
@@ -88,6 +97,14 @@ else
 
      ' fix up start menu folder
      Execute database, "UPDATE Directory SET `DefaultDir` = 'HELIOS~1|HeliosDev' WHERE `DefaultDir` = 'HELIOS|Helios'"
+   end if
+
+   ' Helios Dev Custom is built from the same installer project as regular Helios, so its components would
+   ' otherwise carry the same component IDs.  Windows Installer tracks installed files by component ID, so
+   ' sharing them would let installing or removing regular Helios affect this installation.  Give every
+   ' component its own ID (the same ones on every build, so Helios Dev Custom upgrades itself cleanly).
+   if isDevCustom then
+      MakeComponentIdsUnique database
    end if
 
    ' allow any version to upgrade
@@ -165,6 +182,29 @@ Function RemoveProblemComponent(database, fileName)
         RemoveProblemComponent = false
     End If
 end Function
+
+' replace every ComponentId with a different, stable GUID: the hex digits of the original in reverse order
+Sub MakeComponentIdsUnique(database)
+   Dim view, record, original, digits, reversed, count
+   Set view = database.OpenView("SELECT `Component`, `ComponentId` FROM `Component`") : CheckError "open Component table"
+   view.Execute : CheckError "read Component table"
+   count = 0
+   Do
+      Set record = view.Fetch : CheckError "fetch component"
+      If record Is Nothing Then Exit Do
+      original = record.StringData(2)
+      If Len(original) = 38 Then
+         digits = Replace(Mid(original, 2, 36), "-", "")
+         reversed = StrReverse(digits)
+         record.StringData(2) = "{" & Mid(reversed, 1, 8) & "-" & Mid(reversed, 9, 4) & "-" & Mid(reversed, 13, 4) & "-" & _
+                                Mid(reversed, 17, 4) & "-" & Mid(reversed, 21, 12) & "}"
+         view.Modify 2, record : CheckError "update component " & record.StringData(1)
+         count = count + 1
+      End If
+   Loop
+   view.Close
+   Wscript.Echo "Gave " & count & " components their own IDs for Helios Dev Custom"
+End Sub
 
 Sub CheckError(context)
     Dim message, errRec

@@ -3,7 +3,10 @@ Helios with Profile Editor improvements - build and publish guide
 Branch: helios-editor on https://github.com/mphillippi7804/Helios
 Version: worked out automatically = official Helios version this source is based on + ".5"
          (based on 1.6.6200.7 -> 1.6.6200.7.5; Windows shows the program version as 1.6.6200.75)
-Installs to the normal Helios folders and replaces an installed Helios 1.6.6200.x.
+Installs as "Helios Dev Custom" to  C:\Program Files\Helios Virtual Cockpit\Helios Dev Custom
+alongside regular Helios (which stays in ...\Helios Virtual Cockpit\Helios). Documents, settings and
+profiles use the normal Helios folders. The regular Helios installer cannot overwrite or remove it;
+a newer Helios Dev Custom installer replaces it.
 
 ONE-TIME SETUP
  1. Install Git for Windows: https://git-scm.com/download/win (default options).
@@ -42,7 +45,8 @@ BUILD THE INSTALLER  (same prompt, inside "Developer Edition")
     It must end with "Run End" and no "failed" lines. The installers are:
       Helios Installer\Release\Helios.1.6.6200.7.5.msi        (64-bit, most PCs)
       Helios Installer\Release32\Helios32bit.1.6.6200.7.5.msi (32-bit)
-11. Install: double-click the 64-bit .msi. It replaces an installed Helios 1.6.6200.x.
+11. Install: double-click the 64-bit .msi. It installs next to regular Helios and replaces any earlier
+    Helios Dev Custom. Start menu folder and desktop shortcuts are named "Helios Dev Custom ...".
 
 POST IT ON GITHUB  (choose one)
 12a. Website: open https://github.com/mphillippi7804/Helios/releases/new
@@ -69,5 +73,6 @@ UPDATING TO A NEWER OFFICIAL HELIOS
       git push
     The next build is automatically numbered <that version>.5, e.g. 1.6.6200.8.5.
 
-NOTE: an official Helios installer with the same first three numbers (e.g. 1.6.6200.8) will say a newer
-version is installed. Uninstall this one in Settings > Apps first, or build 1.6.6200.8.5 instead (step 14).
+NOTE: official Helios installers install, update and uninstall regular Helios without touching
+Helios Dev Custom, and the other way around. Double-clicking a .hpf profile opens it in whichever of the
+two was installed most recently.
