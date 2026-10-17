@@ -3976,7 +3976,7 @@
                 {
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_937487924C53439892F37CF38F2AF25A"
                     {
-                    "Name" = "8:Helios"
+                    "Name" = "8:Helios Dev Custom"
                     "AlwaysCreate" = "11:FALSE"
                     "Condition" = "8:"
                     "Transitive" = "11:FALSE"
@@ -4000,7 +4000,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_E384890BFB804E8DBFE6ADCE0EDB8172"
             {
-            "DefaultLocation" = "8:[ProgramFiles64Folder][Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:[ProgramFiles64Folder][Manufacturer]\\Helios Dev Custom"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:TRUE"
             "Condition" = "8:"
@@ -4168,10 +4168,10 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:Helios"
-        "ProductCode" = "8:{421509D7-A828-4190-8C5E-8E1D34BAA66F}"
-        "PackageCode" = "8:{531526BD-654F-45DC-B26B-0F01475637F3}"
-        "UpgradeCode" = "8:{589D8667-3ED9-478B-8F67-A56E4FADBC63}"
+        "ProductName" = "8:Helios Dev Custom"
+        "ProductCode" = "8:{DF8094C6-3443-4687-8D4F-7B72977A859B}"
+        "PackageCode" = "8:{ED3596E8-B75B-4236-9DCB-168CA21F811F}"
+        "UpgradeCode" = "8:{27158E45-C08C-42E4-AD7A-473D0E2AD3A1}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
@@ -4181,7 +4181,7 @@
         "Manufacturer" = "8:Helios Virtual Cockpit"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/HeliosVirtualCockpit/Helios/issues/"
-        "Title" = "8:Helios"
+        "Title" = "8:Helios Dev Custom"
         "Subject" = "8:"
         "ARPCONTACT" = "8:Helios Contributors"
         "Keywords" = "8:Helios DCS BMS Cockpit"
@@ -4292,7 +4292,7 @@
         {
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_04C07E0DE5FE4A0EB4EDFB607E9D253D"
             {
-            "Name" = "8:Helios Profile Editor"
+            "Name" = "8:Helios Dev Custom Profile Editor"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
@@ -4306,7 +4306,7 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_312E0BCC01604AAD85019FD5F0FCCA34"
             {
-            "Name" = "8:Control Center Debug"
+            "Name" = "8:Helios Dev Custom Control Center Debug"
             "Arguments" = "8:-l Debug"
             "Description" = "8:Control Center with Loglevel Debug"
             "ShowCmd" = "3:1"
@@ -4320,7 +4320,7 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_4959DA6DB3794FBA92F8B9F85C1ACFC9"
             {
-            "Name" = "8:Helios Profile Editor"
+            "Name" = "8:Helios Dev Custom Profile Editor"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
@@ -4334,7 +4334,7 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_4BAAECF7E41641BDB7D05D98A8B87D5D"
             {
-            "Name" = "8:Helios Control Center"
+            "Name" = "8:Helios Dev Custom Control Center"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
@@ -4348,7 +4348,7 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_53AFDF753B84467AB063EF6F037857AC"
             {
-            "Name" = "8:Profile Editor Debug"
+            "Name" = "8:Helios Dev Custom Profile Editor Debug"
             "Arguments" = "8:-l Debug"
             "Description" = "8:Profile Editor with Loglevel Debug"
             "ShowCmd" = "3:1"
@@ -4362,7 +4362,7 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_DD2FA98523D44BD6A7B73D0A28AFCE94"
             {
-            "Name" = "8:Helios Control Center"
+            "Name" = "8:Helios Dev Custom Control Center"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
@@ -4376,7 +4376,7 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_FCBB6E6F2968476B81D434499FA96C9B"
             {
-            "Name" = "8:Helios.Read.Me"
+            "Name" = "8:Helios Dev Custom Read Me"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"

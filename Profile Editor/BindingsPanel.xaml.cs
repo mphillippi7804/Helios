@@ -284,9 +284,9 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
         }
 
         /// <summary>
-        /// Actions & Triggers list: everything starts collapsed; opening a device opens its "Input" and "Output"
-        /// groups (and the name groups that hold them), so its actions and triggers are visible straight away.
-        /// Opening an interface, monitor or panel still only shows its devices, collapsed.
+        /// Actions & Triggers list: everything starts collapsed, and opening an interface, device or group shows its
+        /// contents collapsed.  Only when the opened item directly holds "Input" and "Output" groups (for example
+        /// F-14B > Gear and Hook > Hook Handle) are those two opened automatically.
         /// </summary>
         private void SourceTree_ItemExpanded(object sender, RoutedEventArgs e)
         {
@@ -295,22 +295,9 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
                 return;
             }
 
-            foreach (ProfileExplorerTreeItem child in expanded.Children)
+            foreach (ProfileExplorerTreeItem child in expanded.Children.Where(IsInputOutputFolder))
             {
-                if (IsInputOutputFolder(child))
-                {
-                    // opened a name group (e.g. "Hook Handle"): show its Input and Output
-                    child.IsExpanded = true;
-                }
-                else if (child.ItemType == ProfileExplorerTreeItemType.Folder && child.Children.Any(IsInputOutputFolder))
-                {
-                    // opened a device: show each of its name groups with their Input and Output
-                    child.IsExpanded = true;
-                    foreach (ProfileExplorerTreeItem direction in child.Children.Where(IsInputOutputFolder))
-                    {
-                        direction.IsExpanded = true;
-                    }
-                }
+                child.IsExpanded = true;
             }
         }
 
