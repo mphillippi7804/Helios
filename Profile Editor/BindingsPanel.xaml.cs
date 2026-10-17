@@ -172,6 +172,8 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
                 {
                     foreach (ProfileExplorerTreeItem item in bindings.Children)
                     {
+                        // show everything for the selected device: Input/Output, its actions and triggers, and their bindings
+                        item.ExpandAll();
                         BindingItems.Add(item);
                     }
                 }
@@ -265,6 +267,10 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
         private void BindingsTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             ProfileExplorerTreeItem selectedItem = e.NewValue as ProfileExplorerTreeItem;
+
+            // selecting an entry opens everything beneath it
+            selectedItem?.ExpandAll();
+
             if (selectedItem != null && selectedItem.ItemType.HasFlag(ProfileExplorerTreeItemType.Binding))
             {
                 SelectedBinding = (HeliosBinding)selectedItem.ContextItem;
