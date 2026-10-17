@@ -4171,7 +4171,7 @@
         "ProductName" = "8:Helios Dev Custom"
         "ProductCode" = "8:{DF8094C6-3443-4687-8D4F-7B72977A859B}"
         "PackageCode" = "8:{ED3596E8-B75B-4236-9DCB-168CA21F811F}"
-        "UpgradeCode" = "8:{27158E45-C08C-42E4-AD7A-473D0E2AD3A1}"
+        "UpgradeCode" = "8:{589D8667-3ED9-478B-8F67-A56E4FADBC63}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
