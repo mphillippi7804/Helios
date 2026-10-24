@@ -46,6 +46,10 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
         /// </summary>
         private ProfileExplorerTreeItem _sourceList = null;
 
+        // classic layout (Options > Classic Bindings Layout): separate lists for the Input and Output tabs
+        private ProfileExplorerTreeItem _classicActionsList = null;
+        private ProfileExplorerTreeItem _classicTriggerList = null;
+
         static BindingsPanel()
         {
             Type ownerType = typeof(BindingsPanel);
@@ -59,8 +63,37 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
             InitializeComponent();
 
             ProfileExplorerItems = new ProfileExplorerTreeItemCollection();
+            IsClassicLayout = GlobalOptions.HasClassicBindingsLayout;
+            GlobalOptions.ClassicBindingsLayoutChanged += GlobalOptions_ClassicBindingsLayoutChanged;
             LoadBindings();
             LoadSources();
+        }
+
+        /// <summary>
+        /// true when Options > Classic Bindings Layout is checked: Input and Output tabs, no grouping, sorting or
+        /// automatic expanding, exactly like regular Helios
+        /// </summary>
+        public bool IsClassicLayout
+        {
+            get => (bool)GetValue(IsClassicLayoutProperty);
+            set => SetValue(IsClassicLayoutProperty, value);
+        }
+
+        public static readonly DependencyProperty IsClassicLayoutProperty =
+            DependencyProperty.Register("IsClassicLayout", typeof(bool), typeof(BindingsPanel), new PropertyMetadata(false));
+
+        private void GlobalOptions_ClassicBindingsLayoutChanged(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                IsClassicLayout = GlobalOptions.HasClassicBindingsLayout;
+
+                // rebuild both lists in the chosen layout
+                ClearSources();
+                _actionTriggerProfile = null;
+                LoadBindings();
+                LoadSources();
+            });
         }
 
         #region Properties
@@ -160,6 +193,12 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
         /// </summary>
         private void LoadBindings()
         {
+            if (IsClassicLayout)
+            {
+                LoadClassicBindings();
+                return;
+            }
+
             if (BindingObject != null)
             {
                 ClearBindings();
@@ -188,6 +227,33 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
             }
         }
 
+        /// <summary>
+        /// classic layout: on the Input tab the selected object's actions and their bindings,
+        /// on the Output tab its triggers and their bindings (as in regular Helios)
+        /// </summary>
+        private void LoadClassicBindings()
+        {
+            if (BindingObject == null)
+            {
+                BindingItems = null;
+                return;
+            }
+
+            ClearBindings();
+            BindingItems = new ProfileExplorerTreeItemCollection();
+            ProfileExplorerTreeItemType types = BindingType == BindingPanelType.Input
+                ? ProfileExplorerTreeItemType.Action | ProfileExplorerTreeItemType.Binding
+                : ProfileExplorerTreeItemType.Trigger | ProfileExplorerTreeItemType.Binding;
+            ProfileExplorerTreeItem bindings = new ProfileExplorerTreeItem(BindingObject, types);
+            if (bindings.HasChildren)
+            {
+                foreach (ProfileExplorerTreeItem item in bindings.Children)
+                {
+                    BindingItems.Add(item);
+                }
+            }
+        }
+
         private void ClearBindings()
         {
             if (BindingItems != null)
@@ -203,6 +269,12 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
         /// </summary>
         private void LoadSources()
         {
+            if (IsClassicLayout)
+            {
+                LoadClassicSources();
+                return;
+            }
+
             ProfileExplorerTreeItemType sourceTypes = ProfileExplorerTreeItemType.Interface | ProfileExplorerTreeItemType.Monitor |
                                                       ProfileExplorerTreeItemType.Panel | ProfileExplorerTreeItemType.Visual |
                                                       ProfileExplorerTreeItemType.Trigger | ProfileExplorerTreeItemType.Action |
@@ -228,12 +300,51 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
             ProfileExplorerItems = _sourceList?.Children;
         }
 
+        /// <summary>
+        /// classic layout: triggers on the Input tab, actions on the Output tab, in the profile's own order
+        /// (as in regular Helios)
+        /// </summary>
+        private void LoadClassicSources()
+        {
+            ProfileExplorerTreeItemType triggerTypes = ProfileExplorerTreeItemType.Interface | ProfileExplorerTreeItemType.Monitor | ProfileExplorerTreeItemType.Panel | ProfileExplorerTreeItemType.Visual | ProfileExplorerTreeItemType.Trigger;
+            ProfileExplorerTreeItemType actionTypes = ProfileExplorerTreeItemType.Interface | ProfileExplorerTreeItemType.Monitor | ProfileExplorerTreeItemType.Panel | ProfileExplorerTreeItemType.Visual | ProfileExplorerTreeItemType.Action;
+
+            if (BindingObject != null && BindingObject.Profile != _actionTriggerProfile)
+            {
+                ClearSources();
+                HeliosProfile newProfile = BindingObject.Profile;
+                if (newProfile != null)
+                {
+                    Logger.Debug("loading classic actions and triggers lists for bindings");
+                    _classicActionsList = new ProfileExplorerTreeItem(newProfile, actionTypes);
+                    _classicTriggerList = new ProfileExplorerTreeItem(newProfile, triggerTypes);
+                }
+                _actionTriggerProfile = newProfile;
+            }
+
+            ProfileExplorerItems = BindingType == BindingPanelType.Input
+                ? _classicTriggerList?.Children
+                : _classicActionsList?.Children;
+        }
+
         private void ClearSources()
         {
             if (_sourceList != null)
             {
                 _sourceList.Disconnect();
                 _sourceList = null;
+            }
+
+            if (_classicActionsList != null)
+            {
+                _classicActionsList.Disconnect();
+                _classicActionsList = null;
+            }
+
+            if (_classicTriggerList != null)
+            {
+                _classicTriggerList.Disconnect();
+                _classicTriggerList = null;
             }
         }
 
@@ -269,8 +380,11 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
         {
             ProfileExplorerTreeItem selectedItem = e.NewValue as ProfileExplorerTreeItem;
 
-            // selecting an entry opens everything beneath it
-            selectedItem?.ExpandAll();
+            // current layout: selecting an entry opens everything beneath it (the classic layout leaves it as is)
+            if (!IsClassicLayout)
+            {
+                selectedItem?.ExpandAll();
+            }
 
             if (selectedItem != null && selectedItem.ItemType.HasFlag(ProfileExplorerTreeItemType.Binding))
             {

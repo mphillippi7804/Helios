@@ -79,6 +79,39 @@
                 </Style.Triggers>
             </Style>
 
+            <!-- classic layout (Options > Classic Bindings Layout): Input/Output tabs and the original headings -->
+            <Style x:Key="ClassicOnlyTabs" TargetType="TabControl">
+                <Setter Property="Visibility" Value="Collapsed" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsClassicLayout}" Value="True">
+                        <Setter Property="Visibility" Value="Visible" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            <Style x:Key="ClassicActionTriggerLabel" TargetType="Label" BasedOn="{StaticResource ActionTriggerLabel}">
+                <Setter Property="Visibility" Value="Collapsed" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsClassicLayout}" Value="True">
+                        <Setter Property="Visibility" Value="Visible" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            <Style x:Key="ClassicHeading" TargetType="Label" BasedOn="{StaticResource Heading1Label}">
+                <Setter Property="Visibility" Value="Collapsed" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsClassicLayout}" Value="True">
+                        <Setter Property="Visibility" Value="Visible" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            <Style x:Key="CurrentHeading" TargetType="Label" BasedOn="{StaticResource Heading1Label}">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsClassicLayout}" Value="True">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="ProfileExplorerResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
@@ -94,16 +127,25 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <!-- Input and Output are shown together: triggers and actions on the left, all bindings of the selected item in the middle -->
-        <Label Grid.Row="0" Grid.Column="0" Margin="12,6,0,0" Style="{StaticResource Heading1Label}">
+        <!-- classic layout: Input/Output tabs (shown only when Options > Classic Bindings Layout is checked) -->
+        <TabControl Name="IOTab" Grid.RowSpan="2" Grid.ColumnSpan="3" Margin="6,6,6,6" SelectedValuePath="Tag" SelectedValue="{Binding BindingType}" Style="{StaticResource ClassicOnlyTabs}">
+            <TabItem Header="Input" Tag="Input" />
+            <TabItem Header="Output" Tag="Output" />
+        </TabControl>
+        <Label Grid.Row="0" Grid.Column="0" Margin="12,29,0,0" Style="{StaticResource ClassicActionTriggerLabel}">Actions</Label>
+        <Label Grid.Row="0" Grid.Column="1" Margin="3,29,0,0" Style="{StaticResource ClassicHeading}">Bindings</Label>
+        <Label Grid.Row="0" Grid.Column="2" Margin="3,29,0,0" Style="{StaticResource ClassicHeading}">Properties</Label>
+
+        <!-- current layout: Input and Output are shown together: triggers and actions on the left, all bindings of the selected item in the middle -->
+        <Label Grid.Row="0" Grid.Column="0" Margin="12,6,0,0" Style="{StaticResource CurrentHeading}">
             <Label.ToolTip>Everything in the profile that can be bound.  Drag a trigger onto an action, or an action onto a trigger, in the Bindings list.</Label.ToolTip>
             Actions &amp; Triggers
         </Label>
-        <Label Grid.Row="0" Grid.Column="1" Margin="3,6,0,0" Style="{StaticResource Heading1Label}">
+        <Label Grid.Row="0" Grid.Column="1" Margin="3,6,0,0" Style="{StaticResource CurrentHeading}">
             <Label.ToolTip>The selected item's actions with their input bindings, and its triggers with their output bindings.</Label.ToolTip>
             Bindings
         </Label>
-        <Label Grid.Row="0" Grid.Column="2" Margin="3,6,0,0" Style="{StaticResource Heading1Label}">Properties</Label>
+        <Label Grid.Row="0" Grid.Column="2" Margin="3,6,0,0" Style="{StaticResource CurrentHeading}">Properties</Label>
         <TreeView Grid.Row="1" Grid.Column="0" Margin="12,0,3,12" ItemsSource="{Binding ProfileExplorerItems}" Style="{StaticResource ProfileExplorerTreeStyle}" local:DragAndDropManager.DragSourceAdvisor="{StaticResource DropAdvisor}" TreeViewItem.Expanded="SourceTree_ItemExpanded" />
         <TreeView Grid.Row="1" Grid.Column="1" Margin="3,0,6,12" Name="BindingTree" ItemsSource="{Binding BindingItems}" Style="{StaticResource ProfileExplorerTreeStyle}" local:DragAndDropManager.DropTargetAdvisor="{StaticResource DropAdvisor}" SelectedItemChanged="BindingsTree_SelectedItemChanged" />
         <ScrollViewer Grid.Row="1" Grid.Column="2" Margin="0,0,12,12" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">

@@ -83,6 +83,10 @@
                 <TextBlock Grid.Row="16" Grid.Column="0" Style="{StaticResource PropertyNameSpaced}">Save DCS Interface Functions to Log</TextBlock>
                 <CheckBox Grid.Row="16" Grid.Column="1" IsChecked="{Binding LogDCSFunctionDictionary}"/>
                <TextBlock Grid.Row="17" Grid.Column="1" Style="{StaticResource Documentation}">The DCS Interface Devices and Elements will be written to the Profile Editor log file.</TextBlock>
+
+                <TextBlock Grid.Row="18" Grid.Column="0" Style="{StaticResource PropertyNameSpaced}">Classic Bindings Layout</TextBlock>
+                <CheckBox Grid.Row="18" Grid.Column="1" IsChecked="{Binding ClassicBindingsLayout}"/>
+                <TextBlock Grid.Row="19" Grid.Column="1" Style="{StaticResource Documentation}">If checked, the Bindings panel uses the classic layout with separate Input and Output tabs. If unchecked, it shows Input and Output together, grouped and sorted alphabetically.</TextBlock>
                 
             </Grid>
         </GroupBox>

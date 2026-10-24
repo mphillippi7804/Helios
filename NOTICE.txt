@@ -21,6 +21,7 @@ Changes made (relative to official Helios 1.6.6200.7):
   - Typing a Width/Height scales an object's contents proportionally; rotated children scale correctly
   - Profile Explorer and Bindings panel listed alphabetically
   - Bindings panel: Input and Output combined; grouped into "Input"/"Output" folders and by name
+  - Tools > Options > Classic Bindings Layout switches the Bindings panel back to the original Input/Output tabs
   - Build: automatic version numbering and GitHub release publishing
   - Installer: separate "Helios Dev Custom" product with its own folder, shortcuts and component IDs, so the
     regular Helios installer cannot overwrite or remove it

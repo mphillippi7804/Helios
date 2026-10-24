@@ -52,12 +52,20 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
         /// </summary>
         private bool _cacheImages;
 
+        private bool _classicBindingsLayout;
+
+        /// <summary>
+        /// raised when the bindings layout option changes, so open Bindings panels can switch layout immediately
+        /// </summary>
+        public static event System.EventHandler ClassicBindingsLayoutChanged;
+
         public GlobalOptions()
         {
             _defaultCascadeTriggers = HasDefaultCascadeTriggers;
             _defaultFillSecondaryMonitors = HasDefaultFillSecondaryMonitors;
             _defaultAlwaysOnTop = HasDefaultAlwaysOnTop;
             _cacheImages = HasCacheImages;
+            _classicBindingsLayout = HasClassicBindingsLayout;
         }
 
         #region Properties
@@ -140,6 +148,24 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
             }
         }
 
+        /// <summary>
+        /// if true, the Bindings panel uses the classic Helios layout (Input and Output tabs, no grouping or sorting);
+        /// if false, the current layout (Input and Output together, grouped and sorted)
+        /// </summary>
+        public bool ClassicBindingsLayout
+        {
+            get => _classicBindingsLayout;
+            set
+            {
+                if (_classicBindingsLayout == value) return;
+                bool oldValue = _classicBindingsLayout;
+                _classicBindingsLayout = value;
+                ConfigManager.SettingsManager.SaveSetting(SETTINGS_GROUP, "ClassicBindingsLayout", value);
+                OnPropertyChanged(nameof(ClassicBindingsLayout), oldValue, value, true);
+                ClassicBindingsLayoutChanged?.Invoke(this, System.EventArgs.Empty);
+            }
+        }
+
         #endregion
 
         #region Static Client Interface
@@ -181,6 +207,15 @@ namespace GadrocsWorkshop.Helios.ProfileEditor
         /// </returns>
         public static bool HasCacheImages=>
             ConfigManager.SettingsManager.LoadSetting(SETTINGS_GROUP, "CacheImages", true);
+
+        /// <summary>
+        /// accessible as utility for client code that can't get access to the GlobalOptions instance readily
+        /// </summary>
+        /// <returns>
+        /// true if the Bindings panel should use the classic layout with separate Input and Output tabs
+        /// </returns>
+        public static bool HasClassicBindingsLayout =>
+            ConfigManager.SettingsManager.LoadSetting(SETTINGS_GROUP, "ClassicBindingsLayout", false);
 
         #endregion
     }
