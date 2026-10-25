@@ -747,19 +747,5 @@
       <SubType>Designer</SubType>
     </Resource>
   </ItemGroup>
-  <!-- DCS F-16C Airspeed Instrument -->
-  <ItemGroup>
-    <Compile Include="Gauges\Airspeed DCS\AirspeedInstrument.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Gauges\Airspeed DCS\airspeed_instrument_bezel.png" />
-    <Resource Include="Gauges\Airspeed DCS\airspeed_disc.png" />
-    <Resource Include="Gauges\Airspeed DCS\mach_indicator_disc.png" />
-    <Resource Include="Gauges\Airspeed DCS\vne_needle.png" />
-    <Resource Include="Gauges\Airspeed DCS\airspeed_indicator_needle.png" />
-    <Resource Include="Gauges\Airspeed DCS\airspeed_bug.png" />
-    <Resource Include="Gauges\Airspeed DCS\airspeed_instrument_glass.png" />
-    <Resource Include="Gauges\Airspeed DCS\airspeed_set_index_knob.png" />
-  </ItemGroup>
   <Import Project="..\HeliosPlugin.targets" />
 </Project>
